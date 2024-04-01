@@ -7,8 +7,24 @@ public class TF2Dodgeball : ModuleRules
 	public TF2Dodgeball(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+
+        PublicIncludePaths.AddRange(new string[]
+        {
+            "TF2Dodgeball"
+        });
+
+        PublicDependencyModuleNames.AddRange(new string[] 
+		{ 
+			"Core", 
+			"CoreUObject", 
+			"Engine", 
+			"InputCore",
+            "EnhancedInput",
+            "GameplayTags",
+            "NavigationSystem",
+            "AIModule",
+            "Niagara",
+        });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
