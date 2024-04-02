@@ -22,9 +22,11 @@ protected:
 	virtual void SetupInputComponent() override;
 
 private:
-	void Input_Move(const FInputActionValue& InputValue);
-	void Input_Turn(const FInputActionValue& InputValue);
-	void Input_Jump(const FInputActionValue& InputValue);
+	void Move(const FInputActionValue& InputValue);
+	void Turn(const FInputActionValue& InputValue);
+	void Jump(const FInputActionValue& InputValue);
+	void StopJump(const FInputActionValue& InputValue);
+	void AirBlast(const FInputActionValue& InputValue);
 
 protected:
 	UPROPERTY(EditAnywhere, Category=Input)
@@ -38,4 +40,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Input)
 	TObjectPtr<class UInputAction> JumpAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	TObjectPtr<class UInputAction> AirBlastAction;
 };

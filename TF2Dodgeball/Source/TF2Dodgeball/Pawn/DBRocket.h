@@ -27,14 +27,23 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-private:
+public:
 	void FindTargetPlayer();
+	void Explode();
+	void Reflect();
+	void SetCurrentDirection(FVector Direction);
+
+private:
+	FVector CurrentDirection = FVector::UpVector;
+
+public:
+	TObjectPtr<class ADBCharacter> Owner;
 
 private:
 	UPROPERTY(EditAnywhere, Category = Movement)
 	TObjectPtr<class UFloatingPawnMovement> FloaingPawnMovement;
 
 private:
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	TObjectPtr<class ADBCharacter> TargetCharacter;
 };

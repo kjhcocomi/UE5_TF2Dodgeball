@@ -7,6 +7,8 @@
 #include "Character/DBCharacter.h"
 #include "System/DBGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "Interfaces/DBGameInterface.h"
+#include "GameMode/DBGameModeBase.h"
 
 // Sets default values
 ADBRocket::ADBRocket()
@@ -22,6 +24,7 @@ void ADBRocket::BeginPlay()
 {
 	Super::BeginPlay();
 	FindTargetPlayer();
+	GetMovementComponent()->Activate(true);
 }
 
 // Called every frame
@@ -34,9 +37,16 @@ void ADBRocket::Tick(float DeltaTime)
 		FVector TargetPosition = TargetCharacter->GetController()->GetPawn()->GetActorLocation();
 		FVector MyPosition = GetActorLocation();
 
-		FVector Direction = TargetPosition - MyPosition;
+		FVector TargetDirection = TargetPosition - MyPosition;
+		TargetDirection.Normalize();
 
-		AddMovementInput(Direction, 1);
+		CurrentDirection = CurrentDirection + TargetDirection * DeltaTime * 5;
+		CurrentDirection.Normalize();
+
+		//AddActorWorldOffset(CurrentDirection * FloaingPawnMovement->MaxSpeed / 100.f);
+
+		AddMovementInput(CurrentDirection, 1);
+		GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, CurrentDirection.ToString());
 	}
 	else 
 	{
@@ -54,7 +64,8 @@ void ADBRocket::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void ADBRocket::FindTargetPlayer()
 {
-	TeamColor TargetTeam = Cast<UDBGameInstance>(GetGameInstance())->GetCurrentTargetTeam();
+	IDBGameInterface* DBGameMode = Cast<IDBGameInterface>(GetWorld()->GetAuthGameMode());
+	TeamColor TargetTeam = DBGameMode->GetCurrentTargetTeam();
 
 	TArray<AActor*> Actors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADBCharacter::StaticClass(), Actors);
@@ -72,7 +83,25 @@ void ADBRocket::FindTargetPlayer()
 	{
 		TargetCharacter = DBCharacters[0];
 	}
-
-	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, FString::Printf(L"%d", DBCharacters.Num()));
 }
 
+void ADBRocket::Explode()
+{
+	// TODO : ·ÎÄÏ Æø¹ß
+	Destroy();
+}
+
+void ADBRocket::Reflect()
+{
+	IDBGameInterface* DBGameInterface = Cast<IDBGameInterface>(GetWorld()->GetAuthGameMode());
+	DBGameInterface->ChangeTargetTeam();
+
+	FloaingPawnMovement->MaxSpeed = FloaingPawnMovement->MaxSpeed + 300.f;
+	FindTargetPlayer();
+}
+
+void ADBRocket::SetCurrentDirection(FVector Direction)
+{
+	Direction.Normalize();
+	CurrentDirection = Direction;
+}

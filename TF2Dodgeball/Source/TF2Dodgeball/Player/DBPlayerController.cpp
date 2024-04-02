@@ -5,6 +5,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Character/DBCharacter.h"
 
 ADBPlayerController::ADBPlayerController(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -28,13 +29,15 @@ void ADBPlayerController::SetupInputComponent()
 
 	if (auto* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::Input_Move);
-		EnhancedInputComponent->BindAction(TurnAction, ETriggerEvent::Triggered, this, &ThisClass::Input_Turn);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ThisClass::Input_Jump);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
+		EnhancedInputComponent->BindAction(TurnAction, ETriggerEvent::Triggered, this, &ThisClass::Turn);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ThisClass::Jump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ThisClass::StopJump);
+		EnhancedInputComponent->BindAction(AirBlastAction, ETriggerEvent::Started, this, &ThisClass::AirBlast);
 	}
 }
 
-void ADBPlayerController::Input_Move(const FInputActionValue& InputValue)
+void ADBPlayerController::Move(const FInputActionValue& InputValue)
 {
 	FVector2D MoveInput = InputValue.Get<FVector2D>();
 
@@ -52,14 +55,24 @@ void ADBPlayerController::Input_Move(const FInputActionValue& InputValue)
 	}
 }
 
-void ADBPlayerController::Input_Turn(const FInputActionValue& InputValue)
+void ADBPlayerController::Turn(const FInputActionValue& InputValue)
 {
 	FVector2D TurnInput = InputValue.Get<FVector2D>();
 	AddYawInput(TurnInput.X);
 	AddPitchInput(-TurnInput.Y);
 }
 
-void ADBPlayerController::Input_Jump(const FInputActionValue& InputValue)
+void ADBPlayerController::Jump(const FInputActionValue& InputValue)
 {
-	
+	GetCharacter()->Jump();
+}
+
+void ADBPlayerController::StopJump(const FInputActionValue& InputValue)
+{
+	GetCharacter()->StopJumping();
+}
+
+void ADBPlayerController::AirBlast(const FInputActionValue& InputValue)
+{
+	Cast<ADBCharacter>(GetCharacter())->AirBlast();
 }

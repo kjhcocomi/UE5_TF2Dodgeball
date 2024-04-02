@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "System/DBGameInstance.h"
+#include "GameMode/DBGameModeBase.h"
 
 ADBPlayer::ADBPlayer()
 {
@@ -33,6 +34,8 @@ void ADBPlayer::BeginPlay()
 
 	// tmp
 	DBTeamColor = TeamColor::Blue;
+
+	Cast<IDBGameInterface>(GetWorld()->GetAuthGameMode())->SpawnRocket();
 }
 
 void ADBPlayer::Tick(float DeltaTime)

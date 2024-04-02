@@ -4,6 +4,10 @@
 #include "Character/DBCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "System/DBGameInstance.h"
+#include "Interfaces/DBGameInterface.h"
+#include "GameMode/DBGameModeBase.h"
+#include "Pawn/DBRocket.h"
+#include "Physics/DBCollision.h"
 
 // Sets default values
 ADBCharacter::ADBCharacter()
@@ -17,15 +21,24 @@ ADBCharacter::ADBCharacter()
 void ADBCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnBeginOverlap);
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnBeginOverlapBody);
 }
 
-void ADBCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ADBCharacter::OnBeginOverlapBody(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("Overlapped"));
-
-	Cast<UDBGameInstance>(GetGameInstance())->ChangeTargetTeam();
-	Cast<UDBGameInstance>(GetGameInstance())->SpawnRocket();
+	ADBRocket* DBRocket = Cast<ADBRocket>(OtherActor);
+	if (DBRocket)
+	{
+		if (DBRocket->Owner == this) return;
+	}
+	IDBGameInterface* DBGameInterface = Cast<IDBGameInterface>(GetWorld()->GetAuthGameMode());
+	if (DBTeamColor == DBGameInterface->GetCurrentTargetTeam())
+	{
+		// 상대팀에게 서브공
+		DBGameInterface->ChangeTargetTeam();
+	}
+	// 로켓 폭발
+	DBRocket->Explode();
 }
 
 // Called every frame
@@ -40,5 +53,40 @@ void ADBCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void ADBCharacter::AirBlast()
+{
+	FHitResult OutHitResult;
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
+
+	const float AttackRange = 80.f;
+	const float AttackRadius = 80.f;
+	const float AttackDamage = 80.f;
+	const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
+	const FVector End = Start + GetActorForwardVector() * AttackRange;
+
+	bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity, CCHANNEL_DBAIRBLAST, FCollisionShape::MakeSphere(AttackRadius), Params);
+	if (HitDetected)
+	{
+		IDBGameInterface* DBGameInterface = Cast<IDBGameInterface>(GetWorld()->GetAuthGameMode());
+		ADBRocket* DBRocket = Cast<ADBRocket>(OutHitResult.GetActor());
+		if (DBRocket && DBTeamColor == DBGameInterface->GetCurrentTargetTeam())
+		{
+			DBRocket->Owner = this;
+			DBRocket->SetCurrentDirection(GetActorForwardVector());
+			DBRocket->Reflect();
+		}
+	}
+
+#if ENABLE_DRAW_DEBUG
+
+	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
+	float CapsuleHalfHeight = AttackRange * 0.5f;
+	FColor DrawColor = HitDetected ? FColor::Green : FColor::Red;
+
+	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
+
+#endif
 }
 
