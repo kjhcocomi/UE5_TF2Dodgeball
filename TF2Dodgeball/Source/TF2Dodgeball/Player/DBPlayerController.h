@@ -43,4 +43,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Input)
 	TObjectPtr<class UInputAction> AirBlastAction;
+
+protected:
+	UPROPERTY(EditAnywhere, Category = Anim)
+	TObjectPtr<class UAnimMontage> AirBlastMontage;
 };

@@ -6,6 +6,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Character/DBCharacter.h"
+#include "Animation/DBAnimInstance.h"
 
 ADBPlayerController::ADBPlayerController(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -41,6 +42,12 @@ void ADBPlayerController::Move(const FInputActionValue& InputValue)
 {
 	FVector2D MoveInput = InputValue.Get<FVector2D>();
 
+	UDBAnimInstance* DBAnimInstance = Cast<UDBAnimInstance>(GetCharacter()->GetMesh()->GetAnimInstance());
+	if (DBAnimInstance)
+	{
+		DBAnimInstance->MoveInput = MoveInput.GetSafeNormal();
+	}
+
 	if (MoveInput.X != 0)
 	{
 		FRotator Rotator = GetControlRotation();
@@ -74,5 +81,9 @@ void ADBPlayerController::StopJump(const FInputActionValue& InputValue)
 
 void ADBPlayerController::AirBlast(const FInputActionValue& InputValue)
 {
+	if (AirBlastMontage)
+	{
+		GetCharacter()->PlayAnimMontage(AirBlastMontage);
+	}
 	Cast<ADBCharacter>(GetCharacter())->AirBlast();
 }

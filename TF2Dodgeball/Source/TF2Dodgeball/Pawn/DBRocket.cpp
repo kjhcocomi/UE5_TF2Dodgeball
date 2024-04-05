@@ -46,7 +46,7 @@ void ADBRocket::Tick(float DeltaTime)
 		//AddActorWorldOffset(CurrentDirection * FloaingPawnMovement->MaxSpeed / 100.f);
 
 		AddMovementInput(CurrentDirection, 1);
-		GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, CurrentDirection.ToString());
+		//GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, CurrentDirection.ToString());
 	}
 	else 
 	{

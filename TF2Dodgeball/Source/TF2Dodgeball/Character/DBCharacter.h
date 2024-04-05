@@ -41,4 +41,6 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TeamColor DBTeamColor;
 
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UStaticMeshComponent> Weapon;
 };
