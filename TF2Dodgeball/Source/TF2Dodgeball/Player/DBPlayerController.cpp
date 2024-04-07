@@ -7,6 +7,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Character/DBCharacter.h"
 #include "Animation/DBAnimInstance.h"
+#include "TF2Dodgeball.h"
 
 ADBPlayerController::ADBPlayerController(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -15,7 +16,11 @@ ADBPlayerController::ADBPlayerController(const FObjectInitializer& ObjectInitial
 
 void ADBPlayerController::BeginPlay()
 {
+	DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Begin"));
+
 	Super::BeginPlay();
+
+	DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("End"));
 
 	auto* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 	if (Subsystem)

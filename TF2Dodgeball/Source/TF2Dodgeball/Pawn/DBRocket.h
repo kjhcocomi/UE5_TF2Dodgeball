@@ -29,15 +29,16 @@ public:
 
 public:
 	void FindTargetPlayer();
-	void Explode();
-	void Reflect();
+	void Explode(class ADBCharacter* HittedCharacter);
+	void Reflect(class ADBCharacter* InAttacker);
 	void SetCurrentDirection(FVector Direction);
 
 private:
 	FVector CurrentDirection = FVector::UpVector;
 
 public:
-	TObjectPtr<class ADBCharacter> Owner;
+	TObjectPtr<class ADBCharacter> Attacker = nullptr;
+	TeamColor AttackerTeam = TeamColor::None;
 
 private:
 	UPROPERTY(EditAnywhere, Category = Movement)

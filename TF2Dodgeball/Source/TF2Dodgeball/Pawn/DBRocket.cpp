@@ -24,7 +24,6 @@ void ADBRocket::BeginPlay()
 {
 	Super::BeginPlay();
 	FindTargetPlayer();
-	GetMovementComponent()->Activate(true);
 }
 
 // Called every frame
@@ -50,7 +49,7 @@ void ADBRocket::Tick(float DeltaTime)
 	}
 	else 
 	{
-		GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("No Target"));
+		//GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("No Target"));
 		FindTargetPlayer();
 	}
 }
@@ -64,37 +63,74 @@ void ADBRocket::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void ADBRocket::FindTargetPlayer()
 {
-	IDBGameInterface* DBGameMode = Cast<IDBGameInterface>(GetWorld()->GetAuthGameMode());
-	TeamColor TargetTeam = DBGameMode->GetCurrentTargetTeam();
+	return;
+	ADBGameModeBase* DBGameMode = Cast<ADBGameModeBase>(GetWorld()->GetAuthGameMode());
+	TeamColor TargetTeam;
+	TArray<ADBCharacter*> DBTargetCharacters;
+	// 타겟 팀 변경, 타겟 캐릭터들 얻어옴
+	if (AttackerTeam == TeamColor::None) 
+	{
+		// 서브공은 Owner에게 
+		TargetTeam = DBGameMode->GetRocketOwnerTeam();
+		if (TargetTeam == TeamColor::Blue) DBTargetCharacters = DBGameMode->GetBlueCharacters();
+		else DBTargetCharacters = DBGameMode->GetRedCharacters();
+	}
+	else if (AttackerTeam == TeamColor::Blue)
+	{
+		TargetTeam = TeamColor::Red;
+		DBTargetCharacters = DBGameMode->GetRedCharacters();
+	}
+	else
+	{
+		TargetTeam = TeamColor::Blue;
+		DBTargetCharacters = DBGameMode->GetBlueCharacters();
+	}
+	//GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, FString::Printf(TEXT("%d"), DBTargetCharacters.Num()));
 
-	TArray<AActor*> Actors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADBCharacter::StaticClass(), Actors);
-
-	TArray<ADBCharacter*> DBCharacters;
-	for (int i = 0; i < Actors.Num(); i++) {
-		ADBCharacter* DBCharacter = Cast<ADBCharacter>(Actors[i]);
-		if (DBCharacter == nullptr) continue;
-		if (DBCharacter->GetTeamColor() != TargetTeam) continue;
-		DBCharacters.Add(DBCharacter);
+	// 타겟 캐릭터들 중 살아있는 캐릭터만 추출
+	TArray<ADBCharacter*> AliveTargetCharacters;
+	for (int i = 0; i < DBTargetCharacters.Num(); i++)
+	{
+		if (DBTargetCharacters[i]->GetCharacterState() == DBCharacterState::Alive)
+		{
+			AliveTargetCharacters.Add(DBTargetCharacters[i]);
+		}
 	}
 
 	// tmp
-	if (DBCharacters.IsEmpty() == false)
+	if (AliveTargetCharacters.IsEmpty() == false)
 	{
-		TargetCharacter = DBCharacters[0];
+		TargetCharacter = AliveTargetCharacters[0];
+	}
+	else
+	{
+		TargetCharacter = nullptr;
 	}
 }
 
-void ADBRocket::Explode()
+void ADBRocket::Explode(ADBCharacter* HittedCharacter)
 {
-	// TODO : 로켓 폭발
-	Destroy();
+	ADBGameModeBase* DBGameMode = Cast<ADBGameModeBase>(GetWorld()->GetAuthGameMode());
+	if (DBGameMode)
+	{
+		// tmp
+		if (AttackerTeam != HittedCharacter->GetTeamColor())
+		{
+			HittedCharacter->OnDamaged(this);
+		}
+		if (DBGameMode->GetRocketOwnerTeam() != AttackerTeam)
+		{
+			DBGameMode->ChangeRocketOwnerTeam();
+		}
+		// TODO : 폭발
+		Destroy();
+	}
 }
 
-void ADBRocket::Reflect()
+void ADBRocket::Reflect(ADBCharacter* InAttacker)
 {
-	IDBGameInterface* DBGameInterface = Cast<IDBGameInterface>(GetWorld()->GetAuthGameMode());
-	DBGameInterface->ChangeTargetTeam();
+	Attacker = InAttacker;
+	AttackerTeam = Attacker->GetTeamColor();
 
 	FloaingPawnMovement->MaxSpeed = FloaingPawnMovement->MaxSpeed + 300.f;
 	FindTargetPlayer();

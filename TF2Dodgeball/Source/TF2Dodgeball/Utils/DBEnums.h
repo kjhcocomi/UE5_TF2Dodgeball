@@ -11,3 +11,21 @@ enum class TeamColor
 	Red,
 	Blue
 };
+
+UENUM()
+enum class DBCharacterState
+{
+	Dead,
+	Wait,
+	Alive,
+	Spectate,
+};
+
+UENUM()
+enum class DBGameState
+{
+	Wait,
+	Ready,
+	Progress,
+	Finish,
+};

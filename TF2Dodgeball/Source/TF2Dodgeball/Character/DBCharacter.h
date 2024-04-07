@@ -21,7 +21,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	const TeamColor& GetTeamColor() { return DBTeamColor; }
+	TeamColor GetTeamColor() { return DBTeamColor; }
 
 private:
 	UFUNCTION()
@@ -36,6 +36,12 @@ public:
 
 public:
 	void AirBlast();
+	void Revive();
+	void Spectate();
+	void StartGame();
+	void OnDamaged(class ADBRocket* DBRocket);
+
+	DBCharacterState GetCharacterState() { return CurrentCharacterState; }
 
 protected:
 	UPROPERTY(EditAnywhere)
@@ -43,4 +49,8 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UStaticMeshComponent> Weapon;
+
+private:
+	UPROPERTY(VisibleAnywhere)
+	DBCharacterState CurrentCharacterState = DBCharacterState::Spectate;
 };

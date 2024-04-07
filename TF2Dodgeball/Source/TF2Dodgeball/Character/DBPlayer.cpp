@@ -34,8 +34,7 @@ void ADBPlayer::BeginPlay()
 
 	// tmp
 	DBTeamColor = TeamColor::Blue;
-
-	Cast<IDBGameInterface>(GetWorld()->GetAuthGameMode())->SpawnRocket();
+	//Cast<IDBGameInterface>(GetWorld()->GetAuthGameMode())->SpawnRocket();
 }
 
 void ADBPlayer::Tick(float DeltaTime)

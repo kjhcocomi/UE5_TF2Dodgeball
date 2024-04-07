@@ -36,8 +36,4 @@ void UDBAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	bShouldMove = (GroundSpeed > 3.f && MovementComponent->GetCurrentAcceleration() != FVector::ZeroVector);
 	bIsFalling = MovementComponent->IsFalling();
-	
-	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, 
-		FString::Printf(TEXT("%f,%f"), MoveInput.X, MoveInput.Y));
-
 }

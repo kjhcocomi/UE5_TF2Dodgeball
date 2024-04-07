@@ -23,7 +23,7 @@ class TF2DODGEBALL_API IDBGameInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void ChangeTargetTeam() = 0;
-	virtual TeamColor GetCurrentTargetTeam() = 0;
+	virtual void ChangeRocketOwnerTeam() = 0;
+	virtual TeamColor GetRocketOwnerTeam() = 0;
 	virtual void SpawnRocket() = 0;
 };

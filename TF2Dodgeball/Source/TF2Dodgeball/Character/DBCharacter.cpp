@@ -29,15 +29,16 @@ void ADBCharacter::OnBeginOverlapBody(UPrimitiveComponent* OverlappedComponent, 
 	if (DBRocket)
 	{
 		if (DBRocket->Owner == this) return;
+		DBRocket->Explode(this);
 	}
-	IDBGameInterface* DBGameInterface = Cast<IDBGameInterface>(GetWorld()->GetAuthGameMode());
-	if (DBTeamColor == DBGameInterface->GetCurrentTargetTeam())
-	{
-		// 상대팀에게 서브공
-		DBGameInterface->ChangeTargetTeam();
-	}
+	//IDBGameInterface* DBGameInterface = Cast<IDBGameInterface>(GetWorld()->GetAuthGameMode());
+	//if (DBTeamColor == DBGameInterface->GetCurrentTargetTeam())
+	//{
+	//	// 상대팀에게 서브공
+	//	DBGameInterface->ChangeTargetTeam();
+	//}
 	// 로켓 폭발
-	DBRocket->Explode();
+	
 }
 
 // Called every frame
@@ -68,13 +69,11 @@ void ADBCharacter::AirBlast()
 	bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity, CCHANNEL_DBAIRBLAST, FCollisionShape::MakeSphere(AttackRadius), Params);
 	if (HitDetected)
 	{
-		IDBGameInterface* DBGameInterface = Cast<IDBGameInterface>(GetWorld()->GetAuthGameMode());
 		ADBRocket* DBRocket = Cast<ADBRocket>(OutHitResult.GetActor());
-		if (DBRocket && DBTeamColor == DBGameInterface->GetCurrentTargetTeam())
+		if (DBRocket && DBTeamColor != DBRocket->AttackerTeam)
 		{
-			DBRocket->Owner = this;
 			DBRocket->SetCurrentDirection(GetActorForwardVector());
-			DBRocket->Reflect();
+			DBRocket->Reflect(this);
 		}
 	}
 
@@ -87,5 +86,29 @@ void ADBCharacter::AirBlast()
 	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
 
 #endif
+}
+
+void ADBCharacter::Revive()
+{
+	CurrentCharacterState = DBCharacterState::Wait;
+	SetActorHiddenInGame(false);
+	// TODO : 캐릭터 부활, 움직이지는 못함
+}
+
+void ADBCharacter::Spectate()
+{
+	CurrentCharacterState = DBCharacterState::Spectate;
+}
+
+void ADBCharacter::StartGame()
+{
+	CurrentCharacterState = DBCharacterState::Alive;
+	// TODO : 움직일 수 있음
+}
+
+void ADBCharacter::OnDamaged(ADBRocket* DBRocket)
+{
+	CurrentCharacterState = DBCharacterState::Spectate;
+	SetActorHiddenInGame(true);
 }
 
