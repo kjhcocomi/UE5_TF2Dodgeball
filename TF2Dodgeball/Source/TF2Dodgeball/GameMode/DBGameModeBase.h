@@ -19,6 +19,8 @@ public:
 	ADBGameModeBase();
 
 public:
+
+	virtual void BeginPlay() override;
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -40,8 +42,9 @@ public:
 	TSubclassOf<class ADBRocket> RocketClass;
 
 private:
-	UPROPERTY(VisibleAnywhere)
-	DBGameState CurrGameState = DBGameState::Wait;
+	//UPROPERTY(VisibleAnywhere)
+	//EDBGameState CurrGameState = EDBGameState::Wait;
+	TObjectPtr<class ADBGameState> DodgeBallGameState;
 
 private:
 	bool bRocketValid;
@@ -49,6 +52,7 @@ private:
 	FTimerHandle TimerHandle_Finish;
 	TObjectPtr<class ADBRocket> DBRocket;
 
+	TArray<class ADBPlayerController*> DBPlayerControllers;
 	TArray<class ADBCharacter*> DBCharacters;
 	TArray<class ADBCharacter*> DBBlueCharacters;
 	TArray<class ADBCharacter*> DBRedCharacters;

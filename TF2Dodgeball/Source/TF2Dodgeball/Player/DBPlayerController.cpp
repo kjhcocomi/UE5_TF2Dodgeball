@@ -14,13 +14,43 @@ ADBPlayerController::ADBPlayerController(const FObjectInitializer& ObjectInitial
 {
 }
 
+void ADBPlayerController::PostInitializeComponents()
+{
+	//DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Begin"));
+
+	Super::PostInitializeComponents();
+
+	//DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("End"));
+
+}
+
+void ADBPlayerController::PostNetInit()
+{
+	//DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Begin"));
+
+	Super::PostNetInit();
+
+	/*UNetDriver* NetDriver = GetNetDriver();
+	if (NetDriver)
+	{
+		if(NetDriver->ServerConnection)
+			DB_LOG(LogDBNetwork, Log, TEXT("Server Connection : %s"), *NetDriver->ServerConnection->GetName());
+	}
+	else
+	{
+		DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("No NetDriver"));
+	}
+
+	DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("End"));*/
+}
+
 void ADBPlayerController::BeginPlay()
 {
-	DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Begin"));
+	//DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Begin"));
 
 	Super::BeginPlay();
 
-	DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("End"));
+	//DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("End"));
 
 	auto* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 	if (Subsystem)
@@ -41,6 +71,15 @@ void ADBPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ThisClass::StopJump);
 		EnhancedInputComponent->BindAction(AirBlastAction, ETriggerEvent::Started, this, &ThisClass::AirBlast);
 	}
+}
+
+void ADBPlayerController::OnPossess(APawn* InPawn)
+{
+	//DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Begin"));
+
+	Super::OnPossess(InPawn);
+
+	//DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("End"));
 }
 
 void ADBPlayerController::Move(const FInputActionValue& InputValue)

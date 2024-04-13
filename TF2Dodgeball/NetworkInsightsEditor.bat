@@ -1,0 +1,1 @@
+UnrealEditor.exe %cd%\TF2Dodgeball.uproject -NetTrace=1 -Trace=Net

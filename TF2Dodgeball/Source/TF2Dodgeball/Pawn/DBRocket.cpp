@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Interfaces/DBGameInterface.h"
 #include "GameMode/DBGameModeBase.h"
+#include "Player/DBPlayerState.h"
 
 // Sets default values
 ADBRocket::ADBRocket()

@@ -5,11 +5,23 @@
 #include "Pawn/DBRocket.h"
 #include "Kismet/GameplayStatics.h"
 #include "Character/DBCharacter.h"
+#include "TF2Dodgeball.h"
+#include "GameMode/DBGameState.h"
+#include "EngineUtils.h"
+#include "Player/DBPlayerController.h"
 
 ADBGameModeBase::ADBGameModeBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	GameStateClass = ADBGameState::StaticClass();
+}
+
+void ADBGameModeBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	DodgeBallGameState = Cast<ADBGameState>(UGameplayStatics::GetGameState(this));
 }
 
 void ADBGameModeBase::Tick(float DeltaTime)
@@ -17,18 +29,18 @@ void ADBGameModeBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	GatherCharacterInfo();
 
-	switch (CurrGameState)
+	switch (DodgeBallGameState->GetCurrentGameState())
 	{
-		case DBGameState::Wait:
+		case EDBGameState::Wait:
 			Wait();
 			break;
-		case DBGameState::Ready:
+		case EDBGameState::Ready:
 			Ready();
 			break;
-		case DBGameState::Progress:
+		case EDBGameState::Progress:
 			Progress();
 			break;
-		case DBGameState::Finish:
+		case EDBGameState::Finish:
 			Finish();
 			break;
 	}
@@ -75,6 +87,17 @@ void ADBGameModeBase::OnRocketDestroyed(AActor* DestroyedActor)
 
 void ADBGameModeBase::GatherCharacterInfo()
 {
+	// Gather PlayerControllers
+	DBPlayerControllers.Empty();
+	for (ADBPlayerController* PlayerController : TActorRange<ADBPlayerController>(GetWorld()))
+	{
+		if (PlayerController)
+		{
+			DBPlayerControllers.Add(PlayerController);
+		}
+	}
+
+	// Gather DBCharacters
 	TArray<AActor*> Actors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADBCharacter::StaticClass(), Actors);
 
@@ -97,41 +120,45 @@ void ADBGameModeBase::GatherCharacterInfo()
 void ADBGameModeBase::Wait()
 {
 	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("Wait"));
-	// TODO : 최소 레드1, 블루1이면 Ready상태로 변환
+	// 최소 레드1, 블루1이면 Ready상태로 변환
 	if (DBBlueCharacters.Num() >= 1 && DBRedCharacters.Num() >= 1)
 	{
-		CurrGameState = DBGameState::Ready;
+		DodgeBallGameState->SetCurrentGameState(EDBGameState::Ready);
 	}
 	else // 인원부족
 	{
 		for (int i = 0; i < DBCharacters.Num(); i++)
 		{
-			DBCharacters[i]->Spectate();
+			ADBPlayerController* DBPC = Cast<ADBPlayerController>(DBCharacters[i]->GetController());
+			if (DBPC) // 플레이어라면 (봇이 아니라면)
+			{
+				DBCharacters[i]->Spectate();
+			}
 		}
 	}
 }
 
 void ADBGameModeBase::Ready()
 {
-	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("Ready"));
-	// TODO : 죽어있는 캐릭터들 부활
-	// TODO : 몇초 후 Progress 상태로 변하도록 예약
-	// TODO : 대기중에 레드0이거나 블루0되면 다시 Wait상태로 변환
+	//GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("Ready"));
+	
 	if (DBBlueCharacters.Num() == 0 || DBRedCharacters.Num() == 0)
 	{
+		// 대기중에 레드0이거나 블루0되면 다시 Wait상태로 변환
 		// Ready -> Wait
-		
-		CurrGameState = DBGameState::Wait;
+		DodgeBallGameState->SetCurrentGameState(EDBGameState::Wait);
 		GetWorld()->GetTimerManager().ClearTimer(TimerHandle_Ready);
 	}
 	else
 	{
 		if (GetWorld()->GetTimerManager().IsTimerActive(TimerHandle_Ready) == false)
 		{
+			// 몇초 후 Progress 상태로 변하도록 예약
 			GetWorld()->GetTimerManager().SetTimer(TimerHandle_Ready, this, &ADBGameModeBase::ReadyToProgress, 5.f, false);
 		}
 		for (int i = 0; i < DBCharacters.Num(); i++)
 		{
+			// 죽어있는 캐릭터들 부활
 			DBCharacters[i]->Revive();
 		}
 	}
@@ -139,7 +166,7 @@ void ADBGameModeBase::Ready()
 
 void ADBGameModeBase::Progress()
 {
-	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("Progress"));
+	//GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("Progress"));
 	int AliveBlueCnt = 0;
 	int AliveRedCnt = 0;
 	for (int i = 0; i < DBBlueCharacters.Num(); i++)
@@ -160,22 +187,23 @@ void ADBGameModeBase::Progress()
 	}
 	else
 	{
-		CurrGameState = DBGameState::Finish;
+		DodgeBallGameState->SetCurrentGameState(EDBGameState::Finish);
 	}
 }
 
 void ADBGameModeBase::Finish()
 {
-	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("Finish"));
+	//GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("Finish"));
 	if (GetWorld()->GetTimerManager().IsTimerActive(TimerHandle_Finish) == false)
 	{
+		// 몇초 후 Ready 상태로
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle_Finish, this, &ADBGameModeBase::FinishToReady, 5.f, false);
 	}
 }
 
 void ADBGameModeBase::ReadyToProgress()
 {
-	CurrGameState = DBGameState::Progress;
+	DodgeBallGameState->SetCurrentGameState(EDBGameState::Progress);
 	for (int i = 0; i < DBCharacters.Num(); i++)
 	{
 		DBCharacters[i]->StartGame();
@@ -184,7 +212,7 @@ void ADBGameModeBase::ReadyToProgress()
 
 void ADBGameModeBase::FinishToReady()
 {
-	CurrGameState = DBGameState::Ready;
+	DodgeBallGameState->SetCurrentGameState(EDBGameState::Ready);
 }
 
 const TArray<ADBCharacter*>& ADBGameModeBase::GetCharacters()

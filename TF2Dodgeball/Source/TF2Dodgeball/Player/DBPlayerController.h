@@ -18,8 +18,13 @@ public:
 	ADBPlayerController(const FObjectInitializer& ObjectInitializer);
 
 protected:
+	virtual void PostInitializeComponents() override;
+	virtual void PostNetInit() override;
+
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
+
+	virtual void OnPossess(APawn* InPawn) override;
 
 private:
 	void Move(const FInputActionValue& InputValue);

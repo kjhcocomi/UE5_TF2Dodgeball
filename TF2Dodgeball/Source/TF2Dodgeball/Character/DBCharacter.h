@@ -41,7 +41,7 @@ public:
 	void StartGame();
 	void OnDamaged(class ADBRocket* DBRocket);
 
-	DBCharacterState GetCharacterState() { return CurrentCharacterState; }
+	DBCharacterState GetCharacterState();
 
 protected:
 	UPROPERTY(EditAnywhere)
@@ -51,6 +51,6 @@ protected:
 	TObjectPtr<UStaticMeshComponent> Weapon;
 
 private:
-	UPROPERTY(VisibleAnywhere)
-	DBCharacterState CurrentCharacterState = DBCharacterState::Spectate;
+	//UPROPERTY(VisibleAnywhere)
+	//DBCharacterState CurrentCharacterState = DBCharacterState::Spectate;
 };

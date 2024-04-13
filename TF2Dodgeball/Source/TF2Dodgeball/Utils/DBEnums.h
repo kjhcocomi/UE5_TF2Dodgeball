@@ -9,21 +9,24 @@ enum class TeamColor
 {
 	None,
 	Red,
-	Blue
+	Blue,
+	Spectate,
 };
 
 UENUM()
 enum class DBCharacterState
 {
+	None,
 	Dead,
-	Wait,
+	Ready,
 	Alive,
 	Spectate,
 };
 
 UENUM()
-enum class DBGameState
+enum class EDBGameState
 {
+	None,
 	Wait,
 	Ready,
 	Progress,

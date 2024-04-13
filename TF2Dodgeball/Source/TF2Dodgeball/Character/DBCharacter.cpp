@@ -8,6 +8,8 @@
 #include "GameMode/DBGameModeBase.h"
 #include "Pawn/DBRocket.h"
 #include "Physics/DBCollision.h"
+#include "Player/DBPlayerState.h"
+#include "TF2Dodgeball.h"
 
 // Sets default values
 ADBCharacter::ADBCharacter()
@@ -90,25 +92,51 @@ void ADBCharacter::AirBlast()
 
 void ADBCharacter::Revive()
 {
-	CurrentCharacterState = DBCharacterState::Wait;
 	SetActorHiddenInGame(false);
+	ADBPlayerState* DBPS = Cast<ADBPlayerState>(GetPlayerState());
+	if (DBPS)
+	{
+		DBPS->DBCharacterState = DBCharacterState::Ready;
+	}
 	// TODO : 캐릭터 부활, 움직이지는 못함
 }
 
 void ADBCharacter::Spectate()
 {
-	CurrentCharacterState = DBCharacterState::Spectate;
+	ADBPlayerState* DBPS = Cast<ADBPlayerState>(GetPlayerState());
+	if (DBPS)
+	{
+		DBPS->DBCharacterState = DBCharacterState::Spectate;
+	}
 }
 
 void ADBCharacter::StartGame()
 {
-	CurrentCharacterState = DBCharacterState::Alive;
-	// TODO : 움직일 수 있음
+	ADBPlayerState* DBPS = Cast<ADBPlayerState>(GetPlayerState());
+	if (DBPS)
+	{
+		DBPS->DBCharacterState = DBCharacterState::Alive;
+	}
 }
 
 void ADBCharacter::OnDamaged(ADBRocket* DBRocket)
 {
-	CurrentCharacterState = DBCharacterState::Spectate;
 	SetActorHiddenInGame(true);
+	ADBPlayerState* DBPS = Cast<ADBPlayerState>(GetPlayerState());
+	if (DBPS)
+	{
+		DBPS->DBCharacterState = DBCharacterState::Spectate;
+	}
+	
+}
+
+DBCharacterState ADBCharacter::GetCharacterState()
+{
+	ADBPlayerState* DBPS = Cast<ADBPlayerState>(GetPlayerState());
+	if (DBPS)
+	{
+		return DBPS->DBCharacterState;
+	}
+	return DBCharacterState::None;
 }
 

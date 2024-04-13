@@ -24,4 +24,16 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+public:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	// test
+	UPROPERTY(ReplicatedUsing = OnRep_ServerRotationYaw)
+	float ServerRotationYaw;
+
+	UFUNCTION()
+	void OnRep_ServerRotationYaw();
+
+	float RotationRate = 30.f;
 };

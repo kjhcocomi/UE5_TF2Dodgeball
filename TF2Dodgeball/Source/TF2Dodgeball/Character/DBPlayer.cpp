@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "System/DBGameInstance.h"
 #include "GameMode/DBGameModeBase.h"
+#include "TF2Dodgeball.h"
 
 ADBPlayer::ADBPlayer()
 {
@@ -35,6 +36,62 @@ void ADBPlayer::BeginPlay()
 	// tmp
 	DBTeamColor = TeamColor::Blue;
 	//Cast<IDBGameInterface>(GetWorld()->GetAuthGameMode())->SpawnRocket();
+}
+
+void ADBPlayer::PossessedBy(AController* NewController)
+{
+	DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Begin"));
+	AActor* OwnerActor = GetOwner();
+	if (OwnerActor)
+	{
+		DB_LOG(LogDBNetwork, Log, TEXT("Owner : %s"), *OwnerActor->GetName());
+	}
+	else
+	{
+		DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("No Owner"));
+	}
+
+	Super::PossessedBy(NewController);
+
+	OwnerActor = GetOwner();
+	if (OwnerActor)
+	{
+		DB_LOG(LogDBNetwork, Log, TEXT("Owner : %s"), *OwnerActor->GetName());
+	}
+	else
+	{
+		DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("No Owner"));
+	}
+
+	DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("End"));
+}
+
+void ADBPlayer::OnRep_Owner()
+{
+	DB_LOG(LogDBNetwork, Log, TEXT("%s %s"), *GetName(), TEXT("Begin"));
+
+	Super::OnRep_Owner();
+
+	AActor* OwnerActor = GetOwner();
+	if (OwnerActor)
+	{
+		DB_LOG(LogDBNetwork, Log, TEXT("Owner : %s"), *OwnerActor->GetName());
+	}
+	else
+	{
+		DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("No Owner"));
+	}
+
+	DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("End"));
+}
+
+void ADBPlayer::PostNetInit()
+{
+	DB_LOG(LogDBNetwork, Log, TEXT("%s %s"), TEXT("Begin"), *GetName());
+	
+	Super::PostNetInit();
+
+	DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("End"));
 }
 
 void ADBPlayer::Tick(float DeltaTime)
