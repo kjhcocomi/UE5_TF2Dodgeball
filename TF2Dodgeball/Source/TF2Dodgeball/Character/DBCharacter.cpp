@@ -10,12 +10,29 @@
 #include "Physics/DBCollision.h"
 #include "Player/DBPlayerState.h"
 #include "TF2Dodgeball.h"
+#include "Components/WidgetComponent.h"
+#include "UI/DBNameWidget.h"
 
 // Sets default values
 ADBCharacter::ADBCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	NameTextComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("NameBar"));
+	NameTextComponent->SetupAttachment(GetRootComponent());
+
+	ConstructorHelpers::FClassFinder<UUserWidget> NameBarWidgetClass(
+		TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/WBP_NameBar.WBP_NameBar_C'")
+	);
+	if (NameBarWidgetClass.Succeeded())
+	{
+		NameTextComponent->SetWidgetClass(NameBarWidgetClass.Class);
+		NameTextComponent->SetWidgetSpace(EWidgetSpace::Screen);
+		NameTextComponent->SetDrawAtDesiredSize(true);
+		NameTextComponent->SetRelativeLocation(FVector(0, 0, 100));
+		NameTextComponent->InitWidget();
+	}
 }
 
 // Called when the game starts or when spawned
@@ -138,5 +155,18 @@ DBCharacterState ADBCharacter::GetCharacterState()
 		return DBPS->DBCharacterState;
 	}
 	return DBCharacterState::None;
+}
+
+void ADBCharacter::SetName(FText InText)
+{
+	if (NameTextComponent)
+	{
+		UDBNameWidget* NameWidget = Cast<UDBNameWidget>(NameTextComponent->GetUserWidgetObject());
+		if (NameWidget)
+		{
+			NameWidget->SetNameText(InText);
+			DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Good"));
+		}
+	}
 }
 

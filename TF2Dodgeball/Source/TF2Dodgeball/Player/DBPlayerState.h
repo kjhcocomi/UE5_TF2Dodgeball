@@ -16,6 +16,12 @@ class TF2DODGEBALL_API ADBPlayerState : public APlayerState
 	GENERATED_BODY()
 
 public:
+	ADBPlayerState();
+
+public:
+	virtual void BeginPlay() override;
+
+public:
 	UPROPERTY(ReplicatedUsing = OnRep_PlayerTeamColor)
 	TeamColor PlayerTeamColor;
 
@@ -35,4 +41,6 @@ public:
 
 	UFUNCTION()
 	void OnRep_DBCharacterState();
+
+	int a = 0;
 };

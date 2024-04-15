@@ -9,6 +9,9 @@
 #include "System/DBGameInstance.h"
 #include "GameMode/DBGameModeBase.h"
 #include "TF2Dodgeball.h"
+#include "Player/DBPlayerState.h"
+#include "Net/UnrealNetwork.h"
+#include "Subsystem/DBSubsystem.h"
 
 ADBPlayer::ADBPlayer()
 {
@@ -36,11 +39,17 @@ void ADBPlayer::BeginPlay()
 	// tmp
 	DBTeamColor = TeamColor::Blue;
 	//Cast<IDBGameInterface>(GetWorld()->GetAuthGameMode())->SpawnRocket();
+	if (!HasAuthority())
+	{
+		UDBSubsystem* Ss = GetGameInstance()->GetSubsystem<UDBSubsystem>();
+		FString PlayerNameTemp = Ss->GetPlayerName();
+		ServerRPCSetName(PlayerNameTemp);
+	}
 }
 
 void ADBPlayer::PossessedBy(AController* NewController)
 {
-	DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Begin"));
+	/*DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Begin"));
 	AActor* OwnerActor = GetOwner();
 	if (OwnerActor)
 	{
@@ -49,11 +58,11 @@ void ADBPlayer::PossessedBy(AController* NewController)
 	else
 	{
 		DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("No Owner"));
-	}
+	}*/
 
 	Super::PossessedBy(NewController);
 
-	OwnerActor = GetOwner();
+	/*OwnerActor = GetOwner();
 	if (OwnerActor)
 	{
 		DB_LOG(LogDBNetwork, Log, TEXT("Owner : %s"), *OwnerActor->GetName());
@@ -63,16 +72,16 @@ void ADBPlayer::PossessedBy(AController* NewController)
 		DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("No Owner"));
 	}
 
-	DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("End"));
+	DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("End"));*/
 }
 
 void ADBPlayer::OnRep_Owner()
 {
-	DB_LOG(LogDBNetwork, Log, TEXT("%s %s"), *GetName(), TEXT("Begin"));
+	//DB_LOG(LogDBNetwork, Log, TEXT("%s %s"), *GetName(), TEXT("Begin"));
 
 	Super::OnRep_Owner();
 
-	AActor* OwnerActor = GetOwner();
+	/*AActor* OwnerActor = GetOwner();
 	if (OwnerActor)
 	{
 		DB_LOG(LogDBNetwork, Log, TEXT("Owner : %s"), *OwnerActor->GetName());
@@ -82,16 +91,16 @@ void ADBPlayer::OnRep_Owner()
 		DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("No Owner"));
 	}
 
-	DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("End"));
+	DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("End"));*/
 }
 
 void ADBPlayer::PostNetInit()
 {
-	DB_LOG(LogDBNetwork, Log, TEXT("%s %s"), TEXT("Begin"), *GetName());
+	//DB_LOG(LogDBNetwork, Log, TEXT("%s %s"), TEXT("Begin"), *GetName());
 	
 	Super::PostNetInit();
 
-	DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("End"));
+	//DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("End"));
 }
 
 void ADBPlayer::Tick(float DeltaTime)
@@ -122,4 +131,20 @@ void ADBPlayer::SetThirdPersonView()
 
 void ADBPlayer::SetFirstPersonView()
 {
+}
+
+void ADBPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ADBPlayer, PlayerName);
+}
+
+void ADBPlayer::OnRep_DBPlayerName()
+{
+	SetName(FText::FromString(PlayerName));
+}
+
+void ADBPlayer::ServerRPCSetName_Implementation(const FString& InName)
+{
+	PlayerName = InName;
 }

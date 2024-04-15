@@ -24,6 +24,7 @@ public class TF2Dodgeball : ModuleRules
             "NavigationSystem",
             "AIModule",
             "Niagara",
+			"UMG",
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

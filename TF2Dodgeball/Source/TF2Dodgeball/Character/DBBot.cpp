@@ -18,6 +18,12 @@ void ADBBot::BeginPlay()
 	Super::BeginPlay();
 	// tmp
 	DBTeamColor = TeamColor::Red;
+
+	if (!HasAuthority())
+	{
+		FString N = FString(TEXT("Bot"));
+		SetName(FText::FromString(N));
+	}
 }
 
 void ADBBot::Tick(float DeltaTime)
@@ -46,5 +52,5 @@ void ADBBot::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimePr
 
 void ADBBot::OnRep_ServerRotationYaw()
 {
-	DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("OnRep_ServerRotationYaw"));
+	//DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("OnRep_ServerRotationYaw"));
 }

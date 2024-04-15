@@ -50,7 +50,10 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UStaticMeshComponent> Weapon;
 
-private:
-	//UPROPERTY(VisibleAnywhere)
-	//DBCharacterState CurrentCharacterState = DBCharacterState::Spectate;
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<class UWidgetComponent> NameTextComponent;
+
+public:
+	void SetName(FText InText);
 };
