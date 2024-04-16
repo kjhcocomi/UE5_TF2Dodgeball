@@ -17,7 +17,7 @@ void ADBBot::BeginPlay()
 {
 	Super::BeginPlay();
 	// tmp
-	DBTeamColor = TeamColor::Red;
+	PlayerTeamColor = TeamColor::Red;
 
 	if (!HasAuthority())
 	{

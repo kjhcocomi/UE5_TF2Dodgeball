@@ -22,6 +22,10 @@ void ADBGameModeBase::BeginPlay()
 	Super::BeginPlay();
 
 	DodgeBallGameState = Cast<ADBGameState>(UGameplayStatics::GetGameState(this));
+	if (DodgeBallGameState)
+	{
+		DodgeBallGameState->SetCurrentGameState(EDBGameState::Wait);
+	}
 }
 
 void ADBGameModeBase::Tick(float DeltaTime)
@@ -97,18 +101,17 @@ void ADBGameModeBase::GatherCharacterInfo()
 		}
 	}
 
-	// Gather DBCharacters
-	TArray<AActor*> Actors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADBCharacter::StaticClass(), Actors);
-
 	DBCharacters.Empty();
 	DBBlueCharacters.Empty();
 	DBRedCharacters.Empty();
 
-	for (int i = 0; i < Actors.Num(); i++) {
-		ADBCharacter* DBCharacter = Cast<ADBCharacter>(Actors[i]);
-		if (DBCharacter == nullptr) continue;
-		DBCharacters.Add(DBCharacter);
+	for (int i = 0; i < DBPlayerControllers.Num(); i++)
+	{
+		ADBCharacter* DBCharacter = Cast<ADBCharacter>(DBPlayerControllers[i]->GetPawn());
+		if (DBCharacter)
+		{
+			DBCharacters.Add(DBCharacter);
+		}
 	}
 	for (int i = 0; i < DBCharacters.Num(); i++)
 	{
@@ -119,8 +122,13 @@ void ADBGameModeBase::GatherCharacterInfo()
 
 void ADBGameModeBase::Wait()
 {
-	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("Wait"));
+	//GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("Wait"));
+	//DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Wait"));
 	// 최소 레드1, 블루1이면 Ready상태로 변환
+	if (bRocketValid)
+	{
+		DBRocket->Destroy();
+	}
 	if (DBBlueCharacters.Num() >= 1 && DBRedCharacters.Num() >= 1)
 	{
 		DodgeBallGameState->SetCurrentGameState(EDBGameState::Ready);
@@ -141,7 +149,7 @@ void ADBGameModeBase::Wait()
 void ADBGameModeBase::Ready()
 {
 	//GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("Ready"));
-	
+	//DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Ready"));
 	if (DBBlueCharacters.Num() == 0 || DBRedCharacters.Num() == 0)
 	{
 		// 대기중에 레드0이거나 블루0되면 다시 Wait상태로 변환
@@ -167,6 +175,7 @@ void ADBGameModeBase::Ready()
 void ADBGameModeBase::Progress()
 {
 	//GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("Progress"));
+	DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Progress"));
 	int AliveBlueCnt = 0;
 	int AliveRedCnt = 0;
 	for (int i = 0; i < DBBlueCharacters.Num(); i++)

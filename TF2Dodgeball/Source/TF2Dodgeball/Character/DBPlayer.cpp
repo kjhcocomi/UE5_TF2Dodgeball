@@ -12,6 +12,7 @@
 #include "Player/DBPlayerState.h"
 #include "Net/UnrealNetwork.h"
 #include "Subsystem/DBSubsystem.h"
+#include "Subsystem/DBUIManagerSubsystem.h"
 
 ADBPlayer::ADBPlayer()
 {
@@ -36,14 +37,25 @@ void ADBPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// tmp
-	DBTeamColor = TeamColor::Blue;
-	//Cast<IDBGameInterface>(GetWorld()->GetAuthGameMode())->SpawnRocket();
-	if (!HasAuthority())
+	if (HasAuthority())
+	{
+		PlayerTeamColor = TeamColor::Spectate;
+		DBCharacterStateLocal = DBCharacterState::Spectate;
+	}
+	if (!HasAuthority() && IsLocallyControlled())
 	{
 		UDBSubsystem* Ss = GetGameInstance()->GetSubsystem<UDBSubsystem>();
-		FString PlayerNameTemp = Ss->GetPlayerName();
-		ServerRPCSetName(PlayerNameTemp);
+		if (Ss)
+		{
+			FString PlayerNameTemp = Ss->GetPlayerName();
+			ServerRPCSetName(PlayerNameTemp);
+		}
+
+		UDBUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UDBUIManagerSubsystem>();
+		if (UIManager)
+		{
+			UIManager->ShowSelectTeamUI();
+		}
 	}
 }
 

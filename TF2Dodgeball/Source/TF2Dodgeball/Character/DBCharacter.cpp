@@ -12,6 +12,7 @@
 #include "TF2Dodgeball.h"
 #include "Components/WidgetComponent.h"
 #include "UI/DBNameWidget.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ADBCharacter::ADBCharacter()
@@ -89,7 +90,7 @@ void ADBCharacter::AirBlast()
 	if (HitDetected)
 	{
 		ADBRocket* DBRocket = Cast<ADBRocket>(OutHitResult.GetActor());
-		if (DBRocket && DBTeamColor != DBRocket->AttackerTeam)
+		if (DBRocket && PlayerTeamColor != DBRocket->AttackerTeam)
 		{
 			DBRocket->SetCurrentDirection(GetActorForwardVector());
 			DBRocket->Reflect(this);
@@ -109,52 +110,28 @@ void ADBCharacter::AirBlast()
 
 void ADBCharacter::Revive()
 {
-	SetActorHiddenInGame(false);
-	ADBPlayerState* DBPS = Cast<ADBPlayerState>(GetPlayerState());
-	if (DBPS)
-	{
-		DBPS->DBCharacterState = DBCharacterState::Ready;
-	}
+	DBCharacterStateLocal = DBCharacterState::Ready;
 	// TODO : 캐릭터 부활, 움직이지는 못함
 }
 
 void ADBCharacter::Spectate()
 {
-	ADBPlayerState* DBPS = Cast<ADBPlayerState>(GetPlayerState());
-	if (DBPS)
-	{
-		DBPS->DBCharacterState = DBCharacterState::Spectate;
-	}
+	DBCharacterStateLocal = DBCharacterState::Spectate;
 }
 
 void ADBCharacter::StartGame()
 {
-	ADBPlayerState* DBPS = Cast<ADBPlayerState>(GetPlayerState());
-	if (DBPS)
-	{
-		DBPS->DBCharacterState = DBCharacterState::Alive;
-	}
+	DBCharacterStateLocal = DBCharacterState::Alive;
 }
 
 void ADBCharacter::OnDamaged(ADBRocket* DBRocket)
 {
-	SetActorHiddenInGame(true);
-	ADBPlayerState* DBPS = Cast<ADBPlayerState>(GetPlayerState());
-	if (DBPS)
-	{
-		DBPS->DBCharacterState = DBCharacterState::Spectate;
-	}
-	
+	DBCharacterStateLocal = DBCharacterState::Spectate;
 }
 
 DBCharacterState ADBCharacter::GetCharacterState()
 {
-	ADBPlayerState* DBPS = Cast<ADBPlayerState>(GetPlayerState());
-	if (DBPS)
-	{
-		return DBPS->DBCharacterState;
-	}
-	return DBCharacterState::None;
+	return DBCharacterStateLocal;
 }
 
 void ADBCharacter::SetName(FText InText)
@@ -165,8 +142,59 @@ void ADBCharacter::SetName(FText InText)
 		if (NameWidget)
 		{
 			NameWidget->SetNameText(InText);
-			DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Good"));
 		}
 	}
+}
+
+void ADBCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ADBCharacter, PlayerTeamColor);
+	DOREPLIFETIME(ADBCharacter, DBCharacterStateLocal);
+}
+
+void ADBCharacter::OnRep_PlayerTeamColor()
+{
+	switch (PlayerTeamColor)
+	{
+		case TeamColor::Spectate:
+			DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Spectate Team"));
+			break;
+		case TeamColor::Red:
+			DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Red Team"));
+			break;
+		case TeamColor::Blue:
+			DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Blue Team"));
+			break;
+	}
+}
+
+void ADBCharacter::OnRep_DBCharacterState()
+{
+	switch (DBCharacterStateLocal)
+	{
+	case DBCharacterState::None:
+		break;
+	case DBCharacterState::Dead:
+		break;
+	case DBCharacterState::Ready:
+		SetActorHiddenInGame(false);
+		break;
+	case DBCharacterState::Alive:
+		break;
+	case DBCharacterState::Spectate:
+		SetActorHiddenInGame(true);
+		break;
+	}
+}
+
+void ADBCharacter::ServerRPCSetTeam_Implementation(TeamColor InTeamColor)
+{
+	PlayerTeamColor = InTeamColor;
+}
+
+void ADBCharacter::ServerRPCSetState_Implementation(DBCharacterState InState)
+{
+	DBCharacterStateLocal = InState;
 }
 

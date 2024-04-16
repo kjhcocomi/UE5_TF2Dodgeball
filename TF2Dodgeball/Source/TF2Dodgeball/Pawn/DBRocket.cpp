@@ -18,6 +18,7 @@ ADBRocket::ADBRocket()
 	PrimaryActorTick.bCanEverTick = true;
 
 	FloaingPawnMovement = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("FloaingPawnMovement"));
+	bReplicates = true;
 }
 
 // Called when the game starts or when spawned

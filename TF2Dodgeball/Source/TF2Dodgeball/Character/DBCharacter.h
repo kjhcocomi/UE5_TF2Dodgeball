@@ -21,7 +21,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	TeamColor GetTeamColor() { return DBTeamColor; }
+	TeamColor GetTeamColor() { return PlayerTeamColor; }
 
 private:
 	UFUNCTION()
@@ -45,9 +45,6 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere)
-	TeamColor DBTeamColor;
-
-	UPROPERTY(EditAnywhere)
 	TObjectPtr<UStaticMeshComponent> Weapon;
 
 public:
@@ -56,4 +53,30 @@ public:
 
 public:
 	void SetName(FText InText);
+
+public:
+	UPROPERTY(ReplicatedUsing = OnRep_PlayerTeamColor, EditAnywhere)
+	TeamColor PlayerTeamColor;
+
+	UPROPERTY(ReplicatedUsing = OnRep_DBCharacterState)
+	DBCharacterState DBCharacterStateLocal;
+
+public:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+public:
+	// Client에서 호출
+
+	UFUNCTION()
+	void OnRep_PlayerTeamColor();
+
+	UFUNCTION()
+	void OnRep_DBCharacterState();
+
+	// ServerRPC
+	UFUNCTION(Server, Reliable)
+	void ServerRPCSetTeam(TeamColor InTeamColor);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPCSetState(DBCharacterState InState);
 };
