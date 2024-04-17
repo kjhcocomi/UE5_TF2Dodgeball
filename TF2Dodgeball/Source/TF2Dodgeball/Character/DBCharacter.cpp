@@ -13,6 +13,7 @@
 #include "Components/WidgetComponent.h"
 #include "UI/DBNameWidget.h"
 #include "Net/UnrealNetwork.h"
+#include "Materials/Material.h"
 
 // Sets default values
 ADBCharacter::ADBCharacter()
@@ -161,10 +162,20 @@ void ADBCharacter::OnRep_PlayerTeamColor()
 			DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Spectate Team"));
 			break;
 		case TeamColor::Red:
-			DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Red Team"));
+		{
+			if (RedMaterial)
+			{
+				GetMesh()->SetMaterial(0, RedMaterial);
+			}
+		}
 			break;
 		case TeamColor::Blue:
-			DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Blue Team"));
+		{
+			if (BlueMaterial)
+			{
+				GetMesh()->SetMaterial(0, BlueMaterial);
+			}
+		}
 			break;
 	}
 }
@@ -191,6 +202,10 @@ void ADBCharacter::OnRep_DBCharacterState()
 void ADBCharacter::ServerRPCSetTeam_Implementation(TeamColor InTeamColor)
 {
 	PlayerTeamColor = InTeamColor;
+	if (PlayerTeamColor == TeamColor::Spectate)
+	{
+		Spectate();
+	}
 }
 
 void ADBCharacter::ServerRPCSetState_Implementation(DBCharacterState InState)

@@ -47,6 +47,12 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UStaticMeshComponent> Weapon;
 
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class UMaterial> RedMaterial;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class UMaterial> BlueMaterial;
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<class UWidgetComponent> NameTextComponent;

@@ -140,7 +140,10 @@ void ADBGameModeBase::Wait()
 			ADBPlayerController* DBPC = Cast<ADBPlayerController>(DBCharacters[i]->GetController());
 			if (DBPC) // 플레이어라면 (봇이 아니라면)
 			{
-				DBCharacters[i]->Spectate();
+				if (DBCharacters[i]->PlayerTeamColor != TeamColor::Spectate)
+				{
+					DBCharacters[i]->Spectate();
+				}
 			}
 		}
 	}
@@ -149,7 +152,7 @@ void ADBGameModeBase::Wait()
 void ADBGameModeBase::Ready()
 {
 	//GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("Ready"));
-	//DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Ready"));
+	DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Ready"));
 	if (DBBlueCharacters.Num() == 0 || DBRedCharacters.Num() == 0)
 	{
 		// 대기중에 레드0이거나 블루0되면 다시 Wait상태로 변환
@@ -167,7 +170,10 @@ void ADBGameModeBase::Ready()
 		for (int i = 0; i < DBCharacters.Num(); i++)
 		{
 			// 죽어있는 캐릭터들 부활
-			DBCharacters[i]->Revive();
+			if (DBCharacters[i]->PlayerTeamColor != TeamColor::Spectate)
+			{
+				DBCharacters[i]->Revive();
+			}
 		}
 	}
 }
@@ -196,6 +202,10 @@ void ADBGameModeBase::Progress()
 	}
 	else
 	{
+		if (bRocketValid)
+		{
+			DBRocket->Destroy();
+		}
 		DodgeBallGameState->SetCurrentGameState(EDBGameState::Finish);
 	}
 }
@@ -215,7 +225,10 @@ void ADBGameModeBase::ReadyToProgress()
 	DodgeBallGameState->SetCurrentGameState(EDBGameState::Progress);
 	for (int i = 0; i < DBCharacters.Num(); i++)
 	{
-		DBCharacters[i]->StartGame();
+		if (DBCharacters[i]->PlayerTeamColor != TeamColor::Spectate)
+		{
+			DBCharacters[i]->StartGame();
+		}
 	}
 }
 

@@ -29,7 +29,7 @@ void UDBSelectTeamWidget::PushSpectatorButton()
 		ADBPlayer* DBPlayer = Cast<ADBPlayer>(DBPC->GetPawn());
 		if (DBPlayer)
 		{
-			DBPlayer->Spectate();
+			DBPlayer->ServerRPCSetTeam(TeamColor::Spectate);
 			HideUI();
 		}
 	}
