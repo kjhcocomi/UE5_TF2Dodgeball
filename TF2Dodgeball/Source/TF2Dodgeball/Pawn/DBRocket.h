@@ -27,24 +27,40 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION()
+	void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 public:
 	void FindTargetPlayer();
 	void Explode(class ADBCharacter* HittedCharacter);
-	void Reflect(class ADBCharacter* InAttacker);
-	void SetCurrentDirection(FVector Direction);
-
-private:
-	FVector CurrentDirection = FVector::UpVector;
+	void Reflect_Ready(class ADBCharacter* InAttacker);
+	void Reflect();
+	//void SetCurrentDirection(FVector Direction);
 
 public:
 	TObjectPtr<class ADBCharacter> Attacker = nullptr;
 	TeamColor AttackerTeam = TeamColor::None;
-
+	bool bReady = false;
+	FTimerHandle TimerHandle_Reflect;
+	float CheckTime = 0.1f;
 private:
+	UPROPERTY(EditAnywhere, Category = Mesh)
+	TObjectPtr<class UStaticMeshComponent> StaticMesh;
+
 	UPROPERTY(EditAnywhere, Category = Movement)
 	TObjectPtr<class UFloatingPawnMovement> FloaingPawnMovement;
 
 private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<class ADBCharacter> TargetCharacter;
+
+
+public:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UPROPERTY(Replicated)
+	bool bFindTarget = false;
+
+	UPROPERTY(Replicated)
+	FVector CurrentDirection = FVector::UpVector;
 };

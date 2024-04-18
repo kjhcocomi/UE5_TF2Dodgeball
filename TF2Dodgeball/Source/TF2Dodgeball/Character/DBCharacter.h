@@ -85,4 +85,7 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerRPCSetState(DBCharacterState InState);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPCAirBlast(float InAttackRange, float InAttackRadius, FVector InStart, FVector InEnd);
 };

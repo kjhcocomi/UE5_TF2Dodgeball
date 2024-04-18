@@ -14,7 +14,7 @@ class TF2DODGEBALL_API UDBUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
-protected:
+public:
 	virtual void ShowUI();
 	virtual void HideUI();
 	

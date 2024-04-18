@@ -152,7 +152,7 @@ void ADBGameModeBase::Wait()
 void ADBGameModeBase::Ready()
 {
 	//GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("Ready"));
-	DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Ready"));
+	//DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Ready"));
 	if (DBBlueCharacters.Num() == 0 || DBRedCharacters.Num() == 0)
 	{
 		// 대기중에 레드0이거나 블루0되면 다시 Wait상태로 변환
@@ -181,7 +181,7 @@ void ADBGameModeBase::Ready()
 void ADBGameModeBase::Progress()
 {
 	//GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("Progress"));
-	DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Progress"));
+	//DB_LOG(LogDBNetwork, Log, TEXT("%s"), TEXT("Progress"));
 	int AliveBlueCnt = 0;
 	int AliveRedCnt = 0;
 	for (int i = 0; i < DBBlueCharacters.Num(); i++)

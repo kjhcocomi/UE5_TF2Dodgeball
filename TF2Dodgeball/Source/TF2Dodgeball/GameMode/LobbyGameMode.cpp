@@ -3,6 +3,7 @@
 
 #include "GameMode/LobbyGameMode.h"
 #include "UI/DBLobbyWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 ALobbyGameMode::ALobbyGameMode()
 {
@@ -25,6 +26,7 @@ void ALobbyGameMode::BeginPlay()
 		if (IsValid(LobbyWidget))
 		{
 			LobbyWidget->AddToViewport();
+			LobbyWidget->ShowUI();
 		}
 	}
 }

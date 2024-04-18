@@ -34,6 +34,7 @@ void UDBUIManagerSubsystem::ShowSelectTeamUI()
 		if (IsValid(SelectTeamWidget))
 		{
 			SelectTeamWidget->AddToViewport();
+			SelectTeamWidget->ShowUI();
 		}
 	}
 }

@@ -10,6 +10,8 @@
 #include "Interfaces/DBGameInterface.h"
 #include "GameMode/DBGameModeBase.h"
 #include "Player/DBPlayerState.h"
+#include "Net/UnrealNetwork.h"
+#include "Components/PrimitiveComponent.h"
 
 // Sets default values
 ADBRocket::ADBRocket()
@@ -17,42 +19,81 @@ ADBRocket::ADBRocket()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	StaticMesh->SetupAttachment(GetRootComponent());
+
+	ConstructorHelpers::FObjectFinder<UStaticMesh> SphereMesh(
+		TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Sphere.Sphere'")
+	);
+
+	if (SphereMesh.Succeeded())
+	{
+		StaticMesh->SetStaticMesh(SphereMesh.Object);
+	}
+
 	FloaingPawnMovement = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("FloaingPawnMovement"));
 	bReplicates = true;
+	NetUpdateFrequency = 300;
 }
 
 // Called when the game starts or when spawned
 void ADBRocket::BeginPlay()
 {
 	Super::BeginPlay();
-	FindTargetPlayer();
+	if (HasAuthority())
+	{
+		StaticMesh->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnBeginOverlap);
+	}
 }
 
 // Called every frame
 void ADBRocket::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if (TargetCharacter != nullptr) 
+	if (HasAuthority())
 	{
-		FVector TargetPosition = TargetCharacter->GetController()->GetPawn()->GetActorLocation();
-		FVector MyPosition = GetActorLocation();
+		if (TargetCharacter != nullptr)
+		{
+			bFindTarget = true;
+			
+			FVector TargetPosition = TargetCharacter->GetController()->GetPawn()->GetActorLocation();
+			FVector MyPosition = GetActorLocation();
 
-		FVector TargetDirection = TargetPosition - MyPosition;
-		TargetDirection.Normalize();
+			FVector TargetDirection = TargetPosition - MyPosition;
+			TargetDirection.Normalize();
 
-		CurrentDirection = CurrentDirection + TargetDirection * DeltaTime * 5;
-		CurrentDirection.Normalize();
-
-		//AddActorWorldOffset(CurrentDirection * FloaingPawnMovement->MaxSpeed / 100.f);
-
-		AddMovementInput(CurrentDirection, 1);
-		//GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, CurrentDirection.ToString());
+			double Distance = FVector::Distance(TargetPosition, MyPosition);
+			if (Distance >= 300.f)
+			{
+				CurrentDirection = CurrentDirection + TargetDirection * DeltaTime * FloaingPawnMovement->MaxSpeed / 200.f;
+			}
+			else
+			{
+				CurrentDirection = CurrentDirection + TargetDirection * DeltaTime * FloaingPawnMovement->MaxSpeed / 100.f;
+			}
+			
+			CurrentDirection.Normalize();
+			AddMovementInput(CurrentDirection, 1);
+			/*UPrimitiveComponent* UPC = Cast<UPrimitiveComponent>(GetRootComponent());
+			if (UPC)
+			{
+				UPC->SetPhysicsLinearVelocity(CurrentDirection * FloaingPawnMovement->MaxSpeed);
+			}*/
+		}
+		else
+		{
+			bFindTarget = false;
+			//GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("No Target"));
+			FindTargetPlayer();
+		}
 	}
-	else 
+	else
 	{
-		//GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("No Target"));
-		FindTargetPlayer();
+		if (bFindTarget)
+		{
+			//UE_LOG(LogTemp, Log, TEXT("Find %s"), *CurrentDirection.ToString());
+			//AddMovementInput(CurrentDirection, 1);
+		}
 	}
 }
 
@@ -60,12 +101,22 @@ void ADBRocket::Tick(float DeltaTime)
 void ADBRocket::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+}
 
+void ADBRocket::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ADBCharacter* DBCharacter = Cast<ADBCharacter>(OtherActor);
+	if (DBCharacter)
+	{
+		if (DBCharacter != Attacker)
+		{
+			Explode(DBCharacter);
+		}
+	}
 }
 
 void ADBRocket::FindTargetPlayer()
 {
-	return;
 	ADBGameModeBase* DBGameMode = Cast<ADBGameModeBase>(GetWorld()->GetAuthGameMode());
 	TeamColor TargetTeam;
 	TArray<ADBCharacter*> DBTargetCharacters;
@@ -119,27 +170,51 @@ void ADBRocket::Explode(ADBCharacter* HittedCharacter)
 		if (AttackerTeam != HittedCharacter->GetTeamColor())
 		{
 			HittedCharacter->OnDamaged(this);
-		}
-		if (DBGameMode->GetRocketOwnerTeam() != AttackerTeam)
-		{
-			DBGameMode->ChangeRocketOwnerTeam();
+			if (DBGameMode->GetRocketOwnerTeam() != AttackerTeam)
+			{
+				DBGameMode->ChangeRocketOwnerTeam();
+			}
 		}
 		// TODO : Æø¹ß
 		Destroy();
 	}
 }
 
-void ADBRocket::Reflect(ADBCharacter* InAttacker)
+void ADBRocket::Reflect_Ready(ADBCharacter* InAttacker)
 {
+	if (bReady) return;
+	UE_LOG(LogTemp, Log, TEXT("Ready"));
+	bReady = true;
 	Attacker = InAttacker;
 	AttackerTeam = Attacker->GetTeamColor();
-
-	FloaingPawnMovement->MaxSpeed = FloaingPawnMovement->MaxSpeed + 300.f;
-	FindTargetPlayer();
+	CurrentDirection = FVector::ZeroVector;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_Reflect, this, &ADBRocket::Reflect, 0.05f, false);
 }
 
-void ADBRocket::SetCurrentDirection(FVector Direction)
+void ADBRocket::Reflect()
 {
+	
+	FloaingPawnMovement->MaxSpeed = FloaingPawnMovement->MaxSpeed + 150.f;
+
+	FVector Direction = Attacker->GetController()->GetControlRotation().Vector();
 	Direction.Normalize();
 	CurrentDirection = Direction;
+
+	UE_LOG(LogTemp, Log, TEXT("%s"), *Direction.ToString());
+
+	FindTargetPlayer();
+	bReady = false;
+}
+
+//void ADBRocket::SetCurrentDirection(FVector Direction)
+//{
+//	Direction.Normalize();
+//	CurrentDirection = Direction;
+//}
+
+void ADBRocket::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ADBRocket, bFindTarget);
+	DOREPLIFETIME(ADBRocket, CurrentDirection);
 }
