@@ -12,6 +12,7 @@
 #include "Player/DBPlayerState.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/PrimitiveComponent.h"
+#include "Components/SphereComponent.h"
 
 // Sets default values
 ADBRocket::ADBRocket()
@@ -19,11 +20,15 @@ ADBRocket::ADBRocket()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
+	SetRootComponent(SphereComponent);
+	SphereComponent->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
+
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	StaticMesh->SetupAttachment(GetRootComponent());
+	StaticMesh->SetupAttachment(SphereComponent);
 
 	ConstructorHelpers::FObjectFinder<UStaticMesh> SphereMesh(
-		TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Sphere.Sphere'")
+		TEXT("/Script/Engine.StaticMesh'/Game/Tf2/Rocket/Rocket.Rocket'")
 	);
 
 	if (SphereMesh.Succeeded())
@@ -42,7 +47,7 @@ void ADBRocket::BeginPlay()
 	Super::BeginPlay();
 	if (HasAuthority())
 	{
-		StaticMesh->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnBeginOverlap);
+		SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnBeginOverlap);
 	}
 }
 
@@ -74,6 +79,7 @@ void ADBRocket::Tick(float DeltaTime)
 			
 			CurrentDirection.Normalize();
 			AddMovementInput(CurrentDirection, 1);
+			SetActorRotation(CurrentDirection.Rotation());
 			/*UPrimitiveComponent* UPC = Cast<UPrimitiveComponent>(GetRootComponent());
 			if (UPC)
 			{

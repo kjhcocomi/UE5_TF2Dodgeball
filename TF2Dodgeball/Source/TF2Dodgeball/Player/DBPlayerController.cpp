@@ -69,7 +69,7 @@ void ADBPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(TurnAction, ETriggerEvent::Triggered, this, &ThisClass::Turn);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ThisClass::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ThisClass::StopJump);
-		EnhancedInputComponent->BindAction(AirBlastAction, ETriggerEvent::Started, this, &ThisClass::AirBlast);
+		EnhancedInputComponent->BindAction(AirBlastAction, ETriggerEvent::Triggered, this, &ThisClass::AirBlast);
 	}
 }
 
@@ -125,9 +125,18 @@ void ADBPlayerController::StopJump(const FInputActionValue& InputValue)
 
 void ADBPlayerController::AirBlast(const FInputActionValue& InputValue)
 {
+	if (bCanAirBlast == false) return;
+	bCanAirBlast = false;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_AirBlast, this, &ADBPlayerController::CoolDown_AirBlast, 1.f, false);
+
 	if (AirBlastMontage)
 	{
 		GetCharacter()->PlayAnimMontage(AirBlastMontage);
 	}
 	Cast<ADBCharacter>(GetCharacter())->AirBlast();
+}
+
+void ADBPlayerController::CoolDown_AirBlast()
+{
+	bCanAirBlast = true;
 }

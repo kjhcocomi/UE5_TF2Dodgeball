@@ -33,6 +33,12 @@ private:
 	void StopJump(const FInputActionValue& InputValue);
 	void AirBlast(const FInputActionValue& InputValue);
 
+	void CoolDown_AirBlast();
+
+private:
+	FTimerHandle TimerHandle_AirBlast;
+	bool bCanAirBlast = true;
+
 protected:
 	UPROPERTY(EditAnywhere, Category=Input)
 	TObjectPtr<class UInputMappingContext> InputMappingContext;

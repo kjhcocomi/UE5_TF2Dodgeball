@@ -44,6 +44,9 @@ public:
 	FTimerHandle TimerHandle_Reflect;
 	float CheckTime = 0.1f;
 private:
+	UPROPERTY(EditAnywhere, Category = SphereComponent)
+	TObjectPtr<class USphereComponent> SphereComponent;
+
 	UPROPERTY(EditAnywhere, Category = Mesh)
 	TObjectPtr<class UStaticMeshComponent> StaticMesh;
 
