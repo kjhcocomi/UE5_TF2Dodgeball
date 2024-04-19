@@ -61,17 +61,28 @@ public:
 	void SetName(FText InText);
 
 public:
+	UPROPERTY(ReplicatedUsing = OnRep_DBPlayerName)
+	FString PlayerName;
+
 	UPROPERTY(ReplicatedUsing = OnRep_PlayerTeamColor, EditAnywhere)
 	TeamColor PlayerTeamColor;
 
 	UPROPERTY(ReplicatedUsing = OnRep_DBCharacterState)
 	DBCharacterState DBCharacterStateLocal;
 
+	UPROPERTY(Replicated)
+	int KillCount = 0;
+
+	UPROPERTY(Replicated)
+	int DeathCount = 0;
+
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:
 	// Client에서 호출
+	UFUNCTION()
+	void OnRep_DBPlayerName();
 
 	UFUNCTION()
 	void OnRep_PlayerTeamColor();
@@ -80,6 +91,9 @@ public:
 	void OnRep_DBCharacterState();
 
 	// ServerRPC
+	UFUNCTION(Server, Reliable)
+	void ServerRPCSetName(const FString& InName);
+
 	UFUNCTION(Server, Reliable)
 	void ServerRPCSetTeam(TeamColor InTeamColor);
 

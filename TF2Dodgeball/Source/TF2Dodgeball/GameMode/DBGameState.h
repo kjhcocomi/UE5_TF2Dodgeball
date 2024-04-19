@@ -23,6 +23,13 @@ private:
 	EDBGameState CurrentDBGameState;
 
 public:
+	UPROPERTY(Replicated)
+	int BlueWinCount = 0;
+
+	UPROPERTY(Replicated)
+	int RedWinCount = 0;
+
+public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:

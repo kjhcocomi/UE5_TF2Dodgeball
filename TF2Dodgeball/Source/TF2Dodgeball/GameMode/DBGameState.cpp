@@ -14,4 +14,6 @@ void ADBGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ADBGameState, CurrentDBGameState);
+	DOREPLIFETIME(ADBGameState, BlueWinCount);
+	DOREPLIFETIME(ADBGameState, RedWinCount);
 }

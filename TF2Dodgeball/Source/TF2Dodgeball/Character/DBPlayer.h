@@ -43,17 +43,4 @@ protected:
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<class UCameraComponent> Camera;
 
-public:
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
-public:
-	UPROPERTY(ReplicatedUsing = OnRep_DBPlayerName)
-	FString PlayerName;
-
-	UFUNCTION()
-	void OnRep_DBPlayerName();
-
-public:
-	UFUNCTION(Server, Reliable)
-	void ServerRPCSetName(const FString& InName);
 };

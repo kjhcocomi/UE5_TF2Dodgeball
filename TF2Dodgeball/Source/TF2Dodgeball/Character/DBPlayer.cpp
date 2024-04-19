@@ -144,19 +144,3 @@ void ADBPlayer::SetThirdPersonView()
 void ADBPlayer::SetFirstPersonView()
 {
 }
-
-void ADBPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ADBPlayer, PlayerName);
-}
-
-void ADBPlayer::OnRep_DBPlayerName()
-{
-	SetName(FText::FromString(PlayerName));
-}
-
-void ADBPlayer::ServerRPCSetName_Implementation(const FString& InName)
-{
-	PlayerName = InName;
-}

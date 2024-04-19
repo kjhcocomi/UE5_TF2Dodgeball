@@ -162,8 +162,17 @@ void ADBCharacter::SetName(FText InText)
 void ADBCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ADBCharacter, PlayerName);
 	DOREPLIFETIME(ADBCharacter, PlayerTeamColor);
 	DOREPLIFETIME(ADBCharacter, DBCharacterStateLocal);
+	DOREPLIFETIME(ADBCharacter, KillCount);
+	DOREPLIFETIME(ADBCharacter, DeathCount);
+}
+
+
+void ADBCharacter::OnRep_DBPlayerName()
+{
+	SetName(FText::FromString(PlayerName));
 }
 
 void ADBCharacter::OnRep_PlayerTeamColor()
@@ -240,3 +249,7 @@ void ADBCharacter::ServerRPCSetState_Implementation(DBCharacterState InState)
 	DBCharacterStateLocal = InState;
 }
 
+void ADBCharacter::ServerRPCSetName_Implementation(const FString& InName)
+{
+	PlayerName = InName;
+}
