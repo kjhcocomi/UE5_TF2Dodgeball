@@ -8,6 +8,7 @@
 #include "Character/DBCharacter.h"
 #include "Animation/DBAnimInstance.h"
 #include "TF2Dodgeball.h"
+#include "Subsystem/DBUIManagerSubsystem.h"
 
 ADBPlayerController::ADBPlayerController(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -70,6 +71,10 @@ void ADBPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ThisClass::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ThisClass::StopJump);
 		EnhancedInputComponent->BindAction(AirBlastAction, ETriggerEvent::Triggered, this, &ThisClass::AirBlast);
+		EnhancedInputComponent->BindAction(ShowScoreBoardAction, ETriggerEvent::Started, this, &ThisClass::ShowScore);
+		EnhancedInputComponent->BindAction(ShowScoreBoardAction, ETriggerEvent::Completed, this, &ThisClass::HideScore);
+		EnhancedInputComponent->BindAction(ShowSelectTeamUIAction, ETriggerEvent::Started, this, &ThisClass::ShowSelectTeamUI);
+		EnhancedInputComponent->BindAction(ShowMenuUIAction, ETriggerEvent::Started, this, &ThisClass::ShowMenuUI);
 	}
 }
 
@@ -134,6 +139,38 @@ void ADBPlayerController::AirBlast(const FInputActionValue& InputValue)
 		GetCharacter()->PlayAnimMontage(AirBlastMontage);
 	}
 	Cast<ADBCharacter>(GetCharacter())->AirBlast();
+}
+
+void ADBPlayerController::ShowScore(const FInputActionValue& InputValue)
+{
+	UDBUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UDBUIManagerSubsystem>();
+	if (UIManager)
+	{
+		UIManager->ShowScoreBoardUI();
+	}
+}
+
+void ADBPlayerController::HideScore(const FInputActionValue& InputValue)
+{
+	UDBUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UDBUIManagerSubsystem>();
+	if (UIManager)
+	{
+		UIManager->HideScoreBoardUI();
+	}
+}
+
+void ADBPlayerController::ShowSelectTeamUI(const FInputActionValue& InputValue)
+{
+	UDBUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UDBUIManagerSubsystem>();
+	if (UIManager)
+	{
+		UIManager->ShowSelectTeamUI();
+	}
+}
+
+void ADBPlayerController::ShowMenuUI(const FInputActionValue& InputValue)
+{
+	UE_LOG(LogTemp, Log, TEXT("ESC"));
 }
 
 void ADBPlayerController::CoolDown_AirBlast()

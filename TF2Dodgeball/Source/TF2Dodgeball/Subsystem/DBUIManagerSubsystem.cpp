@@ -3,6 +3,7 @@
 
 #include "Subsystem/DBUIManagerSubsystem.h"
 #include "UI/DBSelectTeamWidget.h"
+#include "UI/DBScoreBoardWidget.h"
 
 UDBUIManagerSubsystem::UDBUIManagerSubsystem()
 {
@@ -10,9 +11,18 @@ UDBUIManagerSubsystem::UDBUIManagerSubsystem()
 		TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/WBP_SelectTeam.WBP_SelectTeam_C'")
 	);
 
+	static ConstructorHelpers::FClassFinder<UDBScoreBoardWidget> ScoreBoardWidgetAsset(
+		TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/WBP_ScoreBoard.WBP_ScoreBoard_C'")
+	);
+
 	if (SelectTeamWidgetAsset.Succeeded())
 	{
 		SelectTeamWidgetClass = SelectTeamWidgetAsset.Class;
+	}
+
+	if (ScoreBoardWidgetAsset.Succeeded())
+	{
+		ScoreBoardWidgetClass = ScoreBoardWidgetAsset.Class;
 	}
 }
 
@@ -28,13 +38,40 @@ void UDBUIManagerSubsystem::Deinitialize()
 
 void UDBUIManagerSubsystem::ShowSelectTeamUI()
 {
-	if (IsValid(SelectTeamWidgetClass))
+	if (SelectTeamWidget == nullptr)
 	{
-		SelectTeamWidget = CreateWidget<UDBSelectTeamWidget>(GetWorld(), SelectTeamWidgetClass);
-		if (IsValid(SelectTeamWidget))
+		if (IsValid(SelectTeamWidgetClass))
 		{
-			SelectTeamWidget->AddToViewport();
-			SelectTeamWidget->ShowUI();
+			SelectTeamWidget = CreateWidget<UDBSelectTeamWidget>(GetWorld(), SelectTeamWidgetClass);
+			if (IsValid(SelectTeamWidget))
+			{
+				SelectTeamWidget->AddToViewport();
+			}
 		}
+	}
+	SelectTeamWidget->ShowUI();
+}
+
+void UDBUIManagerSubsystem::ShowScoreBoardUI()
+{
+	if (ScoreBoardWidget == nullptr)
+	{
+		if (IsValid(ScoreBoardWidgetClass))
+		{
+			ScoreBoardWidget = CreateWidget<UDBScoreBoardWidget>(GetWorld(), ScoreBoardWidgetClass);
+			if (IsValid(ScoreBoardWidget))
+			{
+				ScoreBoardWidget->AddToViewport();
+			}
+		}
+	}
+	ScoreBoardWidget->ShowUI();
+}
+
+void UDBUIManagerSubsystem::HideScoreBoardUI()
+{
+	if (ScoreBoardWidget)
+	{
+		ScoreBoardWidget->HideUI();
 	}
 }

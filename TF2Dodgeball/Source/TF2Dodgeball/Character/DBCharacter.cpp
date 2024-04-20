@@ -140,6 +140,7 @@ void ADBCharacter::StartGame()
 void ADBCharacter::OnDamaged(ADBRocket* DBRocket)
 {
 	DBCharacterStateLocal = DBCharacterState::Spectate;
+	DeathCount++;
 }
 
 DBCharacterState ADBCharacter::GetCharacterState()

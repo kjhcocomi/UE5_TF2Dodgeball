@@ -32,6 +32,10 @@ private:
 	void Jump(const FInputActionValue& InputValue);
 	void StopJump(const FInputActionValue& InputValue);
 	void AirBlast(const FInputActionValue& InputValue);
+	void ShowScore(const FInputActionValue& InputValue);
+	void HideScore(const FInputActionValue& InputValue);
+	void ShowSelectTeamUI(const FInputActionValue& InputValue);
+	void ShowMenuUI(const FInputActionValue& InputValue);
 
 	void CoolDown_AirBlast();
 
@@ -54,6 +58,15 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Input)
 	TObjectPtr<class UInputAction> AirBlastAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	TObjectPtr<class UInputAction> ShowScoreBoardAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	TObjectPtr<class UInputAction> ShowSelectTeamUIAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	TObjectPtr<class UInputAction> ShowMenuUIAction;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = Anim)

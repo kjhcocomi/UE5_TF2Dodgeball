@@ -30,6 +30,14 @@ public:
 	UPROPERTY()
 	TObjectPtr<class UDBSelectTeamWidget> SelectTeamWidget;
 
+	UPROPERTY()
+	TSubclassOf<class UDBScoreBoardWidget> ScoreBoardWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<class UDBScoreBoardWidget> ScoreBoardWidget;
+
 public:
 	void ShowSelectTeamUI();
+	void ShowScoreBoardUI();
+	void HideScoreBoardUI();
 };

@@ -70,11 +70,11 @@ void ADBRocket::Tick(float DeltaTime)
 			double Distance = FVector::Distance(TargetPosition, MyPosition);
 			if (Distance >= 300.f)
 			{
-				CurrentDirection = CurrentDirection + TargetDirection * DeltaTime * FloaingPawnMovement->MaxSpeed / 200.f;
+				CurrentDirection = CurrentDirection + TargetDirection * DeltaTime * FloaingPawnMovement->MaxSpeed / 240.f;
 			}
 			else
 			{
-				CurrentDirection = CurrentDirection + TargetDirection * DeltaTime * FloaingPawnMovement->MaxSpeed / 100.f;
+				CurrentDirection = CurrentDirection + TargetDirection * DeltaTime * FloaingPawnMovement->MaxSpeed / 80.f;
 			}
 			
 			CurrentDirection.Normalize();
@@ -176,6 +176,7 @@ void ADBRocket::Explode(ADBCharacter* HittedCharacter)
 		if (AttackerTeam != HittedCharacter->GetTeamColor())
 		{
 			HittedCharacter->OnDamaged(this);
+			if (Attacker) Attacker->KillCount++;
 			if (DBGameMode->GetRocketOwnerTeam() != AttackerTeam)
 			{
 				DBGameMode->ChangeRocketOwnerTeam();
@@ -200,7 +201,7 @@ void ADBRocket::Reflect_Ready(ADBCharacter* InAttacker)
 void ADBRocket::Reflect()
 {
 	
-	FloaingPawnMovement->MaxSpeed = FloaingPawnMovement->MaxSpeed + 150.f;
+	FloaingPawnMovement->MaxSpeed = FloaingPawnMovement->MaxSpeed + 180.f;
 
 	FVector Direction = Attacker->GetController()->GetControlRotation().Vector();
 	Direction.Normalize();

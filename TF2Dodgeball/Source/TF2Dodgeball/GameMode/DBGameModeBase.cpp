@@ -206,6 +206,17 @@ void ADBGameModeBase::Progress()
 		{
 			DBRocket->Destroy();
 		}
+		else
+		{
+			if (RocketOwnerTeam == TeamColor::Blue)
+			{
+				DodgeBallGameState->BlueWinCount++;
+			}
+			else if (RocketOwnerTeam == TeamColor::Red)
+			{
+				DodgeBallGameState->RedWinCount++;
+			}
+		}
 		DodgeBallGameState->SetCurrentGameState(EDBGameState::Finish);
 	}
 }
@@ -214,15 +225,7 @@ void ADBGameModeBase::Finish()
 {
 	//GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("Finish"));
 	if (GetWorld()->GetTimerManager().IsTimerActive(TimerHandle_Finish) == false)
-	{
-		if (RocketOwnerTeam == TeamColor::Blue)
-		{
-			DodgeBallGameState->BlueWinCount++;
-		}
-		else if (RocketOwnerTeam == TeamColor::Red)
-		{
-			DodgeBallGameState->RedWinCount++;
-		}
+	{		
 		// 몇초 후 Ready 상태로
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle_Finish, this, &ADBGameModeBase::FinishToReady, 5.f, false);
 	}

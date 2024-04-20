@@ -133,7 +133,7 @@ void ADBPlayer::SetThirdPersonView()
 	Camera->bUsePawnControlRotation = false;
 
 	// Spring Arm
-	SpringArm->TargetArmLength = 500.f;
+	SpringArm->TargetArmLength = 400.f;
 
 	SpringArm->bUsePawnControlRotation = true;
 	SpringArm->bInheritPitch = true;
