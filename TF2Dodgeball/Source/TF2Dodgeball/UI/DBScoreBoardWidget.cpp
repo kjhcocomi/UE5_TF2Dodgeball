@@ -89,7 +89,6 @@ void UDBScoreBoardWidget::ShowUI()
 	}
 
 	// Other Players Info
-	// TODO
 	bool FirstSpectator = true;
 	FString SpectatorString = FString::Printf(TEXT("Spectators : "));
 	for (ADBCharacter* DBCharacter : TActorRange<ADBCharacter>(GetWorld()))

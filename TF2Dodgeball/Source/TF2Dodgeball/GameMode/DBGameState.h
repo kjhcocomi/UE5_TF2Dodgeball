@@ -7,6 +7,7 @@
 #include "Utils/DBEnums.h"
 #include "DBGameState.generated.h"
 
+class ADBCharacter;
 /**
  * 
  */

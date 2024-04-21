@@ -4,6 +4,7 @@
 #include "Subsystem/DBUIManagerSubsystem.h"
 #include "UI/DBSelectTeamWidget.h"
 #include "UI/DBScoreBoardWidget.h"
+#include "UI/DBKillLogWidget.h"
 
 UDBUIManagerSubsystem::UDBUIManagerSubsystem()
 {
@@ -15,6 +16,10 @@ UDBUIManagerSubsystem::UDBUIManagerSubsystem()
 		TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/WBP_ScoreBoard.WBP_ScoreBoard_C'")
 	);
 
+	static ConstructorHelpers::FClassFinder<UDBKillLogWidget> KillLogWidgetAsset(
+		TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/WBP_KillLog.WBP_KillLog_C'")
+	);
+
 	if (SelectTeamWidgetAsset.Succeeded())
 	{
 		SelectTeamWidgetClass = SelectTeamWidgetAsset.Class;
@@ -23,6 +28,11 @@ UDBUIManagerSubsystem::UDBUIManagerSubsystem()
 	if (ScoreBoardWidgetAsset.Succeeded())
 	{
 		ScoreBoardWidgetClass = ScoreBoardWidgetAsset.Class;
+	}
+
+	if (KillLogWidgetAsset.Succeeded())
+	{
+		KillLogWidgetClass = KillLogWidgetAsset.Class;
 	}
 }
 
@@ -74,4 +84,20 @@ void UDBUIManagerSubsystem::HideScoreBoardUI()
 	{
 		ScoreBoardWidget->HideUI();
 	}
+}
+
+void UDBUIManagerSubsystem::ShowKillLogUI()
+{
+	if (KillLogWidget == nullptr)
+	{
+		if (IsValid(KillLogWidgetClass))
+		{
+			KillLogWidget = CreateWidget<UDBKillLogWidget>(GetWorld(), KillLogWidgetClass);
+			if (IsValid(KillLogWidget))
+			{
+				KillLogWidget->AddToViewport();
+			}
+		}
+	}
+	KillLogWidget->ShowUI();
 }

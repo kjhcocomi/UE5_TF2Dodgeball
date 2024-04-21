@@ -55,6 +55,7 @@ void ADBPlayer::BeginPlay()
 		if (UIManager)
 		{
 			UIManager->ShowSelectTeamUI();
+			UIManager->ShowKillLogUI();
 		}
 	}
 }

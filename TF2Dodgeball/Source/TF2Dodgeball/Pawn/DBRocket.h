@@ -7,6 +7,8 @@
 #include "GameFramework/Pawn.h"
 #include "DBRocket.generated.h"
 
+class ADBCharacter;
+
 UCLASS()
 class TF2DODGEBALL_API ADBRocket : public APawn
 {
@@ -66,4 +68,7 @@ public:
 
 	UPROPERTY(Replicated)
 	FVector CurrentDirection = FVector::UpVector;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCExplodeRocket(ADBCharacter* InAttacker, ADBCharacter* InVictim);
 };

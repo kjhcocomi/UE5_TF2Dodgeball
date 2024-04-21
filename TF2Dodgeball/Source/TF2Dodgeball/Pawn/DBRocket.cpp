@@ -4,7 +4,6 @@
 #include "Pawn/DBRocket.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Character/DBPlayer.h"
-#include "Character/DBCharacter.h"
 #include "System/DBGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "Interfaces/DBGameInterface.h"
@@ -13,6 +12,9 @@
 #include "Net/UnrealNetwork.h"
 #include "Components/PrimitiveComponent.h"
 #include "Components/SphereComponent.h"
+#include "Subsystem/DBUIManagerSubsystem.h"
+#include "UI/DBKillLogWidget.h"
+#include "GameMode/DBGameState.h"
 
 // Sets default values
 ADBRocket::ADBRocket()
@@ -177,6 +179,7 @@ void ADBRocket::Explode(ADBCharacter* HittedCharacter)
 		{
 			HittedCharacter->OnDamaged(this);
 			if (Attacker) Attacker->KillCount++;
+			MulticastRPCExplodeRocket(Attacker, HittedCharacter);
 			if (DBGameMode->GetRocketOwnerTeam() != AttackerTeam)
 			{
 				DBGameMode->ChangeRocketOwnerTeam();
@@ -224,4 +227,20 @@ void ADBRocket::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ADBRocket, bFindTarget);
 	DOREPLIFETIME(ADBRocket, CurrentDirection);
+}
+
+void ADBRocket::MulticastRPCExplodeRocket_Implementation(ADBCharacter* InAttacker, ADBCharacter* InVictim)
+{
+	if (HasAuthority() == false)
+	{
+		UDBUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UDBUIManagerSubsystem>();
+		if (UIManager)
+		{
+			UDBKillLogWidget* KillLogUI = UIManager->GetKillLogWidget();
+			if (KillLogUI)
+			{
+				KillLogUI->AddKillLogElement(InAttacker, InVictim);
+			}
+		}
+	}
 }

@@ -42,7 +42,6 @@ void UDBScoreBoardElementWidget::SetElement(FString InName, int InKill, int InDe
 
 	if (IsMyCharacter)
 	{
-		UE_LOG(LogTemp, Log, TEXT("LocalCharacter"));
 		Image_Background->SetBrushTintColor(FSlateColor(FColor(100, 100, 100, 100)));
 	}
 }

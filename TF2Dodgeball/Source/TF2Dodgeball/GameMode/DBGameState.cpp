@@ -4,6 +4,9 @@
 #include "GameMode/DBGameState.h"
 #include "TF2Dodgeball.h"
 #include "Net/UnrealNetwork.h"
+#include "Subsystem/DBUIManagerSubsystem.h"
+#include "UI/DBKillLogWidget.h"
+#include "System/DBGameInstance.h"
 
 void ADBGameState::SetCurrentGameState(EDBGameState GS)
 {

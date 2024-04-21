@@ -6,6 +6,8 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "DBUIManagerSubsystem.generated.h"
 
+class ADBCharacter;
+class UDBKillLogWidget;
 /**
  * 
  */
@@ -26,18 +28,25 @@ public:
 
 	UPROPERTY()
 	TSubclassOf<class UDBSelectTeamWidget> SelectTeamWidgetClass;
-
 	UPROPERTY()
 	TObjectPtr<class UDBSelectTeamWidget> SelectTeamWidget;
 
 	UPROPERTY()
 	TSubclassOf<class UDBScoreBoardWidget> ScoreBoardWidgetClass;
-
 	UPROPERTY()
 	TObjectPtr<class UDBScoreBoardWidget> ScoreBoardWidget;
+
+	UPROPERTY()
+	TSubclassOf<UDBKillLogWidget> KillLogWidgetClass;
+	UPROPERTY()
+	TObjectPtr<UDBKillLogWidget> KillLogWidget;
 
 public:
 	void ShowSelectTeamUI();
 	void ShowScoreBoardUI();
 	void HideScoreBoardUI();
+	void ShowKillLogUI();
+
+public:
+	UDBKillLogWidget* GetKillLogWidget() { return KillLogWidget; }
 };
