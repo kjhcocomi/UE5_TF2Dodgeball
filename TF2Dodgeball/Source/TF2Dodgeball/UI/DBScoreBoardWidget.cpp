@@ -38,7 +38,7 @@ void UDBScoreBoardWidget::ShowUI()
 
 	for (int i = 0; i < ScoreBoardElementWidgets.Num(); i++)
 	{
-		ScoreBoardElementWidgets[i]->RemoveFromViewport();
+		ScoreBoardElementWidgets[i]->RemoveFromParent();
 	}
 	ScoreBoardElementWidgets.Empty();
 

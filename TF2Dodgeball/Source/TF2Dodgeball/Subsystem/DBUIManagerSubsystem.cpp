@@ -5,6 +5,8 @@
 #include "UI/DBSelectTeamWidget.h"
 #include "UI/DBScoreBoardWidget.h"
 #include "UI/DBKillLogWidget.h"
+#include "UI/DBChatWidget.h"
+#include "UI/DBChatTmpWidget.h"
 
 UDBUIManagerSubsystem::UDBUIManagerSubsystem()
 {
@@ -20,6 +22,14 @@ UDBUIManagerSubsystem::UDBUIManagerSubsystem()
 		TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/WBP_KillLog.WBP_KillLog_C'")
 	);
 
+	static ConstructorHelpers::FClassFinder<UDBChatWidget> ChatWidgetAsset(
+		TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/WBP_Chat.WBP_Chat_C'")
+	);
+
+	static ConstructorHelpers::FClassFinder<UDBChatTmpWidget> ChatTmpWidgetAsset(
+		TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/WBP_ChatTmp.WBP_ChatTmp_C'")
+	);
+
 	if (SelectTeamWidgetAsset.Succeeded())
 	{
 		SelectTeamWidgetClass = SelectTeamWidgetAsset.Class;
@@ -33,6 +43,16 @@ UDBUIManagerSubsystem::UDBUIManagerSubsystem()
 	if (KillLogWidgetAsset.Succeeded())
 	{
 		KillLogWidgetClass = KillLogWidgetAsset.Class;
+	}
+
+	if (ChatWidgetAsset.Succeeded())
+	{
+		ChatWidgetClass = ChatWidgetAsset.Class;
+	}
+
+	if (ChatTmpWidgetAsset.Succeeded())
+	{
+		ChatTmpWidgetClass = ChatTmpWidgetAsset.Class;
 	}
 }
 
@@ -100,4 +120,44 @@ void UDBUIManagerSubsystem::ShowKillLogUI()
 		}
 	}
 	KillLogWidget->ShowUI();
+}
+
+void UDBUIManagerSubsystem::ShowChatUI()
+{
+	if (ChatWidget == nullptr)
+	{
+		if (IsValid(ChatWidgetClass))
+		{
+			ChatWidget = CreateWidget<UDBChatWidget>(GetWorld(), ChatWidgetClass);
+			if (IsValid(ChatWidget))
+			{
+				ChatWidget->AddToViewport();
+			}
+		}
+	}
+	ChatWidget->ShowUI();
+}
+
+void UDBUIManagerSubsystem::HideChatUI()
+{
+	if (ChatWidget)
+	{
+		ChatWidget->HideUI();
+	}
+}
+
+void UDBUIManagerSubsystem::ShowChatTmpUI()
+{
+	if (ChatTmpWidget == nullptr)
+	{
+		if (IsValid(ChatTmpWidgetClass))
+		{
+			ChatTmpWidget = CreateWidget<UDBChatTmpWidget>(GetWorld(), ChatTmpWidgetClass);
+			if (IsValid(ChatTmpWidget))
+			{
+				ChatTmpWidget->AddToViewport();
+			}
+		}
+	}
+	ChatTmpWidget->ShowUI();
 }

@@ -5,10 +5,14 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "Character/DBCharacter.h"
 #include "Animation/DBAnimInstance.h"
 #include "TF2Dodgeball.h"
 #include "Subsystem/DBUIManagerSubsystem.h"
+#include "UI/DBChatWidget.h"
+#include "UI/DBChatTmpWidget.h"
+#include "GameMode/DBGameState.h"
 
 ADBPlayerController::ADBPlayerController(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -75,6 +79,7 @@ void ADBPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(ShowScoreBoardAction, ETriggerEvent::Completed, this, &ThisClass::HideScore);
 		EnhancedInputComponent->BindAction(ShowSelectTeamUIAction, ETriggerEvent::Started, this, &ThisClass::ShowSelectTeamUI);
 		EnhancedInputComponent->BindAction(ShowMenuUIAction, ETriggerEvent::Started, this, &ThisClass::ShowMenuUI);
+		EnhancedInputComponent->BindAction(ShowChatUIAction, ETriggerEvent::Started, this, &ThisClass::ShowChatUI);
 	}
 }
 
@@ -171,9 +176,40 @@ void ADBPlayerController::ShowSelectTeamUI(const FInputActionValue& InputValue)
 void ADBPlayerController::ShowMenuUI(const FInputActionValue& InputValue)
 {
 	UE_LOG(LogTemp, Log, TEXT("ESC"));
+	UDBUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UDBUIManagerSubsystem>();
+	if (UIManager)
+	{
+		if (ChatUIVisible)
+		{
+			UIManager->HideChatUI();
+		}
+		else
+		{
+			// TODO
+		}
+	}
+}
+
+void ADBPlayerController::ShowChatUI(const FInputActionValue& InputValue)
+{
+	UDBUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UDBUIManagerSubsystem>();
+	if (UIManager)
+	{
+		UIManager->ShowChatUI();
+	}
 }
 
 void ADBPlayerController::CoolDown_AirBlast()
 {
 	bCanAirBlast = true;
+}
+
+void ADBPlayerController::ServerRPCSendMessage_Implementation(const FText& Text)
+{
+	ADBCharacter* DBC = Cast<ADBCharacter>(GetPawn());
+	ADBGameState* DBGS = Cast<ADBGameState>(UGameplayStatics::GetGameState(GetWorld()));
+	if (DBGS)
+	{
+		DBGS->MulticastRPCBroadCastMessage(DBC, Text);
+	}
 }

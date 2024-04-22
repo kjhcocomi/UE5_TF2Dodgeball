@@ -54,8 +54,9 @@ void ADBPlayer::BeginPlay()
 		UDBUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UDBUIManagerSubsystem>();
 		if (UIManager)
 		{
-			UIManager->ShowSelectTeamUI();
 			UIManager->ShowKillLogUI();
+			UIManager->ShowChatTmpUI();
+			UIManager->ShowSelectTeamUI();
 		}
 	}
 }

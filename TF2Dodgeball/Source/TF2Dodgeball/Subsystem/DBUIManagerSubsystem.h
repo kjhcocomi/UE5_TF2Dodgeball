@@ -8,6 +8,8 @@
 
 class ADBCharacter;
 class UDBKillLogWidget;
+class UDBChatWidget;
+class UDBChatTmpWidget;
 /**
  * 
  */
@@ -41,12 +43,31 @@ public:
 	UPROPERTY()
 	TObjectPtr<UDBKillLogWidget> KillLogWidget;
 
+	UPROPERTY()
+	TSubclassOf<UDBChatWidget> ChatWidgetClass;
+	UPROPERTY()
+	TObjectPtr<UDBChatWidget> ChatWidget;
+
+	UPROPERTY()
+	TSubclassOf<UDBChatTmpWidget> ChatTmpWidgetClass;
+	UPROPERTY()
+	TObjectPtr<UDBChatTmpWidget> ChatTmpWidget;
+
 public:
 	void ShowSelectTeamUI();
+
 	void ShowScoreBoardUI();
 	void HideScoreBoardUI();
+
 	void ShowKillLogUI();
+
+	void ShowChatUI();
+	void HideChatUI();
+
+	void ShowChatTmpUI();
 
 public:
 	UDBKillLogWidget* GetKillLogWidget() { return KillLogWidget; }
+	UDBChatWidget* GetChatWidget() { return ChatWidget; }
+	UDBChatTmpWidget* GetChatTmpWidget() { return ChatTmpWidget; }
 };

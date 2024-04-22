@@ -36,12 +36,16 @@ private:
 	void HideScore(const FInputActionValue& InputValue);
 	void ShowSelectTeamUI(const FInputActionValue& InputValue);
 	void ShowMenuUI(const FInputActionValue& InputValue);
+	void ShowChatUI(const FInputActionValue& InputValue);
 
 	void CoolDown_AirBlast();
 
 private:
 	FTimerHandle TimerHandle_AirBlast;
 	bool bCanAirBlast = true;
+
+public:
+	bool ChatUIVisible;
 
 protected:
 	UPROPERTY(EditAnywhere, Category=Input)
@@ -68,7 +72,15 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	TObjectPtr<class UInputAction> ShowMenuUIAction;
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	TObjectPtr<class UInputAction> ShowChatUIAction;
+
 protected:
 	UPROPERTY(EditAnywhere, Category = Anim)
 	TObjectPtr<class UAnimMontage> AirBlastMontage;
+
+public:
+	UFUNCTION(Server, Reliable)
+	void ServerRPCSendMessage(const FText& Text);
+
 };

@@ -7,6 +7,8 @@
 #include "Subsystem/DBUIManagerSubsystem.h"
 #include "UI/DBKillLogWidget.h"
 #include "System/DBGameInstance.h"
+#include "UI/DBChatWidget.h"
+#include "UI/DBChatTmpWidget.h"
 
 void ADBGameState::SetCurrentGameState(EDBGameState GS)
 {
@@ -19,4 +21,25 @@ void ADBGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME(ADBGameState, CurrentDBGameState);
 	DOREPLIFETIME(ADBGameState, BlueWinCount);
 	DOREPLIFETIME(ADBGameState, RedWinCount);
+}
+
+void ADBGameState::MulticastRPCBroadCastMessage_Implementation(ADBCharacter* Sender, const FText& Text)
+{
+	if (HasAuthority() == false)
+	{
+		UDBUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UDBUIManagerSubsystem>();
+		if (UIManager)
+		{
+			UDBChatWidget* ChatUI = UIManager->GetChatWidget();
+			if (ChatUI)
+			{
+				ChatUI->AddChat(Sender, Text);
+			}
+			UDBChatTmpWidget* ChatTmpUI = UIManager->GetChatTmpWidget();
+			if (ChatTmpUI)
+			{
+				ChatTmpUI->AddChat(Sender, Text);
+			}
+		}
+	}
 }

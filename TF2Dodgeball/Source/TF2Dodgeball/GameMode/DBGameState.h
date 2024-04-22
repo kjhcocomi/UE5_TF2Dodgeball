@@ -36,4 +36,8 @@ public:
 public:
 	void SetCurrentGameState(EDBGameState GS);
 	EDBGameState GetCurrentGameState() { return CurrentDBGameState; }
+
+public:
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCBroadCastMessage(class ADBCharacter* Sender, const FText& Text);
 };

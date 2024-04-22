@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Character/DBCharacter.h"
@@ -15,6 +15,8 @@
 #include "Net/UnrealNetwork.h"
 #include "Materials/Material.h"
 #include "Player/DBPlayerController.h"
+#include "GameMode/DBGameState.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ADBCharacter::ADBCharacter()
@@ -62,10 +64,10 @@ void ADBCharacter::OnBeginOverlapBody(UPrimitiveComponent* OverlappedComponent, 
 	//IDBGameInterface* DBGameInterface = Cast<IDBGameInterface>(GetWorld()->GetAuthGameMode());
 	//if (DBTeamColor == DBGameInterface->GetCurrentTargetTeam())
 	//{
-	//	// »ó´ëÆÀ¿¡°Ô ¼­ºê°ø
+	//	// ìƒëŒ€íŒ€ì—ê²Œ ì„œë¸Œê³µ
 	//	DBGameInterface->ChangeTargetTeam();
 	//}
-	// ·ÎÄÏ Æø¹ß
+	// ë¡œì¼“ í­ë°œ
 	
 }
 
@@ -124,7 +126,7 @@ void ADBCharacter::AirBlast()
 void ADBCharacter::Revive()
 {
 	DBCharacterStateLocal = DBCharacterState::Ready;
-	// TODO : Ä³¸¯ÅÍ ºÎÈ°, ¿òÁ÷ÀÌÁö´Â ¸øÇÔ
+	// TODO : ìºë¦­í„° ë¶€í™œ, ì›€ì§ì´ì§€ëŠ” ëª»í•¨
 }
 
 void ADBCharacter::Spectate()
@@ -253,4 +255,10 @@ void ADBCharacter::ServerRPCSetState_Implementation(DBCharacterState InState)
 void ADBCharacter::ServerRPCSetName_Implementation(const FString& InName)
 {
 	PlayerName = InName;
+	ADBGameState* DBGS = Cast<ADBGameState>(UGameplayStatics::GetGameState(GetWorld()));
+	if (DBGS)
+	{
+		FString EnterMessage = PlayerName + FString::Printf(TEXT("ë‹˜ì´ ê²Œì„ì— ì…ì¥í•˜ì˜€ìŠµë‹ˆë‹¤."));
+		DBGS->MulticastRPCBroadCastMessage(nullptr, FText::FromString(EnterMessage));
+	}
 }

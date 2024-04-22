@@ -69,5 +69,5 @@ void UDBKillLogElementWidget::SetElement(ADBCharacter* InAttacker, ADBCharacter*
 
 void UDBKillLogElementWidget::Remove()
 {
-	RemoveFromViewport();
+	RemoveFromParent();
 }
