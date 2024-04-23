@@ -7,6 +7,7 @@
 #include "UI/DBKillLogWidget.h"
 #include "UI/DBChatWidget.h"
 #include "UI/DBChatTmpWidget.h"
+#include "UI/DBHudWidget.h"
 
 UDBUIManagerSubsystem::UDBUIManagerSubsystem()
 {
@@ -28,6 +29,10 @@ UDBUIManagerSubsystem::UDBUIManagerSubsystem()
 
 	static ConstructorHelpers::FClassFinder<UDBChatTmpWidget> ChatTmpWidgetAsset(
 		TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/WBP_ChatTmp.WBP_ChatTmp_C'")
+	);
+
+	static ConstructorHelpers::FClassFinder<UDBHudWidget> HudWidgetAsset(
+		TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/WBP_Hud.WBP_Hud_C'")
 	);
 
 	if (SelectTeamWidgetAsset.Succeeded())
@@ -53,6 +58,11 @@ UDBUIManagerSubsystem::UDBUIManagerSubsystem()
 	if (ChatTmpWidgetAsset.Succeeded())
 	{
 		ChatTmpWidgetClass = ChatTmpWidgetAsset.Class;
+	}
+
+	if (HudWidgetAsset.Succeeded())
+	{
+		HudWidgetClass = HudWidgetAsset.Class;
 	}
 }
 
@@ -160,4 +170,20 @@ void UDBUIManagerSubsystem::ShowChatTmpUI()
 		}
 	}
 	ChatTmpWidget->ShowUI();
+}
+
+void UDBUIManagerSubsystem::ShowHudUI()
+{
+	if (HudWidget == nullptr)
+	{
+		if (IsValid(HudWidgetClass))
+		{
+			HudWidget = CreateWidget<UDBHudWidget>(GetWorld(), HudWidgetClass);
+			if (IsValid(HudWidget))
+			{
+				HudWidget->AddToViewport();
+			}
+		}
+	}
+	HudWidget->ShowUI();
 }

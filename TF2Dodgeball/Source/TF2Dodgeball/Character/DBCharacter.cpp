@@ -17,6 +17,8 @@
 #include "Player/DBPlayerController.h"
 #include "GameMode/DBGameState.h"
 #include "Kismet/GameplayStatics.h"
+#include "Subsystem/DBUIManagerSubsystem.h"
+#include "UI/DBHudWidget.h"
 
 // Sets default values
 ADBCharacter::ADBCharacter()
@@ -202,6 +204,18 @@ void ADBCharacter::OnRep_PlayerTeamColor()
 		}
 			break;
 	}
+	if (IsLocallyControlled())
+	{
+		UDBUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UDBUIManagerSubsystem>();
+		if (UIManager)
+		{
+			UDBHudWidget* HudUI = UIManager->GetHudUI();
+			if (HudUI)
+			{
+				HudUI->SetImage(this);
+			}
+		}
+	}
 }
 
 void ADBCharacter::OnRep_DBCharacterState()
@@ -220,6 +234,18 @@ void ADBCharacter::OnRep_DBCharacterState()
 	case DBCharacterState::Spectate:
 		SetActorHiddenInGame(true);
 		break;
+	}
+	if (IsLocallyControlled())
+	{
+		UDBUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UDBUIManagerSubsystem>();
+		if (UIManager)
+		{
+			UDBHudWidget* HudUI = UIManager->GetHudUI();
+			if (HudUI)
+			{
+				HudUI->SetImage(this);
+			}
+		}
 	}
 }
 

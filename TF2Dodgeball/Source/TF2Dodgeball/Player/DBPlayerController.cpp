@@ -12,6 +12,7 @@
 #include "Subsystem/DBUIManagerSubsystem.h"
 #include "UI/DBChatWidget.h"
 #include "UI/DBChatTmpWidget.h"
+#include "UI/DBHudWidget.h"
 #include "GameMode/DBGameState.h"
 
 ADBPlayerController::ADBPlayerController(const FObjectInitializer& ObjectInitializer)
@@ -135,9 +136,29 @@ void ADBPlayerController::StopJump(const FInputActionValue& InputValue)
 
 void ADBPlayerController::AirBlast(const FInputActionValue& InputValue)
 {
+	ADBCharacter* DBCharacter = Cast<ADBCharacter>(GetPawn());
+	if (DBCharacter)
+	{
+		if (DBCharacter->DBCharacterStateLocal == DBCharacterState::None
+			|| DBCharacter->DBCharacterStateLocal == DBCharacterState::Dead
+			|| DBCharacter->DBCharacterStateLocal == DBCharacterState::Spectate
+			|| DBCharacter->GetTeamColor() == TeamColor::None
+			|| DBCharacter->GetTeamColor() == TeamColor::Spectate)
+			return;
+	}
+
 	if (bCanAirBlast == false) return;
 	bCanAirBlast = false;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_AirBlast, this, &ADBPlayerController::CoolDown_AirBlast, 1.f, false);
+	UDBUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UDBUIManagerSubsystem>();
+	if (UIManager)
+	{
+		UDBHudWidget* HudUI = UIManager->GetHudUI();
+		if (HudUI)
+		{
+			HudUI->StartCoolDown(1.f);
+		}
+	}
 
 	if (AirBlastMontage)
 	{
