@@ -19,6 +19,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Subsystem/DBUIManagerSubsystem.h"
 #include "UI/DBHudWidget.h"
+#include "Particles/ParticleSystem.h"
+#include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
 ADBCharacter::ADBCharacter()
@@ -249,8 +251,18 @@ void ADBCharacter::OnRep_DBCharacterState()
 	}
 }
 
+void ADBCharacter::MulticastRPCAirBlastEffect_Implementation()
+{
+	UParticleSystemComponent* PS = Cast<UParticleSystemComponent>(GetComponentByClass(UParticleSystemComponent::StaticClass()));
+	if (PS)
+	{
+		PS->Activate();
+	}
+}
+
 void ADBCharacter::ServerRPCAirBlast_Implementation(float InAttackRange, float InAttackRadius, FVector InStart, FVector InEnd)
 {
+	MulticastRPCAirBlastEffect();
 	FHitResult OutHitResult;
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
 	bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, InStart, InEnd, FQuat::Identity, CCHANNEL_DBAIRBLAST, FCollisionShape::MakeSphere(InAttackRadius), Params);

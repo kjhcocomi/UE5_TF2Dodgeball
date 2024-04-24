@@ -40,8 +40,18 @@ public:
 	//void SetCurrentDirection(FVector Direction);
 
 public:
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UParticleSystem> ExplosionParticle;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UParticleSystem> RocketBlueParticle;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UParticleSystem> RocketRedParticle;
+
+public:
 	TObjectPtr<class ADBCharacter> Attacker = nullptr;
-	TeamColor AttackerTeam = TeamColor::None;
+	
 	bool bReady = false;
 	FTimerHandle TimerHandle_Reflect;
 	float CheckTime = 0.1f;
@@ -63,11 +73,17 @@ private:
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	UPROPERTY(ReplicatedUsing = OnRep_RocketParticle)
+	TeamColor AttackerTeam = TeamColor::None;
+
 	UPROPERTY(Replicated)
 	bool bFindTarget = false;
 
 	UPROPERTY(Replicated)
 	FVector CurrentDirection = FVector::UpVector;
+
+	UFUNCTION()
+	virtual void OnRep_RocketParticle();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPCExplodeRocket(ADBCharacter* InAttacker, ADBCharacter* InVictim);

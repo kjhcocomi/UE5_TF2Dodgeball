@@ -15,6 +15,8 @@
 #include "Subsystem/DBUIManagerSubsystem.h"
 #include "UI/DBKillLogWidget.h"
 #include "GameMode/DBGameState.h"
+#include "Particles/ParticleSystemComponent.h"
+
 
 // Sets default values
 ADBRocket::ADBRocket()
@@ -133,8 +135,16 @@ void ADBRocket::FindTargetPlayer()
 	{
 		// 서브공은 Owner에게 
 		TargetTeam = DBGameMode->GetRocketOwnerTeam();
-		if (TargetTeam == TeamColor::Blue) DBTargetCharacters = DBGameMode->GetBlueCharacters();
-		else DBTargetCharacters = DBGameMode->GetRedCharacters();
+		if (TargetTeam == TeamColor::Blue)
+		{
+			AttackerTeam = TeamColor::Red;
+			DBTargetCharacters = DBGameMode->GetBlueCharacters();
+		}
+		else
+		{
+			AttackerTeam = TeamColor::Blue;
+			DBTargetCharacters = DBGameMode->GetRedCharacters();
+		}
 	}
 	else if (AttackerTeam == TeamColor::Blue)
 	{
@@ -193,7 +203,6 @@ void ADBRocket::Explode(ADBCharacter* HittedCharacter)
 void ADBRocket::Reflect_Ready(ADBCharacter* InAttacker)
 {
 	if (bReady) return;
-	UE_LOG(LogTemp, Log, TEXT("Ready"));
 	bReady = true;
 	Attacker = InAttacker;
 	AttackerTeam = Attacker->GetTeamColor();
@@ -203,14 +212,11 @@ void ADBRocket::Reflect_Ready(ADBCharacter* InAttacker)
 
 void ADBRocket::Reflect()
 {
-	
 	FloaingPawnMovement->MaxSpeed = FloaingPawnMovement->MaxSpeed + 180.f;
 
 	FVector Direction = Attacker->GetController()->GetControlRotation().Vector();
 	Direction.Normalize();
 	CurrentDirection = Direction;
-
-	UE_LOG(LogTemp, Log, TEXT("%s"), *Direction.ToString());
 
 	FindTargetPlayer();
 	bReady = false;
@@ -227,6 +233,23 @@ void ADBRocket::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ADBRocket, bFindTarget);
 	DOREPLIFETIME(ADBRocket, CurrentDirection);
+	DOREPLIFETIME(ADBRocket, AttackerTeam);
+}
+
+void ADBRocket::OnRep_RocketParticle()
+{
+	UParticleSystemComponent* PS = Cast<UParticleSystemComponent>(GetComponentByClass(UParticleSystemComponent::StaticClass()));
+	if (PS)
+	{
+		if (AttackerTeam == TeamColor::Blue)
+		{
+			PS->SetTemplate(RocketBlueParticle);
+		}
+		else if (AttackerTeam == TeamColor::Red)
+		{
+			PS->SetTemplate(RocketRedParticle);
+		}
+	}
 }
 
 void ADBRocket::MulticastRPCExplodeRocket_Implementation(ADBCharacter* InAttacker, ADBCharacter* InVictim)
@@ -242,5 +265,7 @@ void ADBRocket::MulticastRPCExplodeRocket_Implementation(ADBCharacter* InAttacke
 				KillLogUI->AddKillLogElement(InAttacker, InVictim);
 			}
 		}
+		// effect
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticle, GetActorLocation());
 	}
 }

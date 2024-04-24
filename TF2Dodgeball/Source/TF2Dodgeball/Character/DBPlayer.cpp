@@ -18,19 +18,28 @@ ADBPlayer::ADBPlayer()
 {
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
 
+	// Pawn
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = true;
+	bUseControllerRotationRoll = false;
+
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	SpringArm->SetupAttachment(GetCapsuleComponent());
 
-	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	Camera->SetupAttachment(SpringArm);
+	// tp
+	Camera_Tpv = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera_Tpv"));
+	Camera_Tpv->SetupAttachment(SpringArm);
 
-	SpringArm->SetRelativeRotation(FRotator(-50, 0, 0));
+	Camera_Fpv = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera_Fpv"));
+	Camera_Fpv->SetupAttachment(GetMesh());
 
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -88.f), FRotator(0.f, -90.f, 0.f));
 
 	//GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
-	SetThirdPersonView();
+	SetThirdPersonCamera();
+	SetFirstPersonCamera();
 }
 
 void ADBPlayer::BeginPlay()
@@ -123,27 +132,43 @@ void ADBPlayer::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ADBPlayer::SetThirdPersonView()
+void ADBPlayer::ChangeView()
 {
-	// Pawn
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = true;
-	bUseControllerRotationRoll = false;
+	if (bIsThirdPersonView)
+	{
+		Camera_Fpv->Activate();
+		Camera_Tpv->Deactivate();
+		bIsThirdPersonView = false;
+	}
+	else 
+	{
+		Camera_Fpv->Deactivate();
+		Camera_Tpv->Activate();
+		bIsThirdPersonView = true;
+	}
+}
 
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-
+void ADBPlayer::SetThirdPersonCamera()
+{
 	// Camera
-	Camera->bUsePawnControlRotation = false;
+	Camera_Tpv->bUsePawnControlRotation = false;
+	Camera_Tpv->SetRelativeLocation(FVector(0, 0, 0));
 
 	// Spring Arm
+	SpringArm->SetRelativeRotation(FRotator(-50, 0, 0));
 	SpringArm->TargetArmLength = 400.f;
 
 	SpringArm->bUsePawnControlRotation = true;
 	SpringArm->bInheritPitch = true;
 	SpringArm->bInheritYaw = true;
 	SpringArm->bInheritRoll = false;
+
+	bIsThirdPersonView = true;
 }
 
-void ADBPlayer::SetFirstPersonView()
+void ADBPlayer::SetFirstPersonCamera()
 {
+	Camera_Fpv->bUsePawnControlRotation = true;
+	Camera_Fpv->SetRelativeRotation(FRotator(-90, 0, 90));
+	Camera_Fpv->bAutoActivate = false;
 }

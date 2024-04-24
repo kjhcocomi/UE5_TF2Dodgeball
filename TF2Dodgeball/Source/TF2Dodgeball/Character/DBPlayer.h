@@ -32,15 +32,21 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+private:
+	bool bIsThirdPersonView = true;
+
 public:
-	void SetThirdPersonView();
-	void SetFirstPersonView();
+	void ChangeView();
+	void SetThirdPersonCamera();
+	void SetFirstPersonCamera();
 
 protected:
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<class USpringArmComponent> SpringArm;
 
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly)
-	TObjectPtr<class UCameraComponent> Camera;
+	TObjectPtr<class UCameraComponent> Camera_Tpv;
 
+	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<class UCameraComponent> Camera_Fpv;
 };

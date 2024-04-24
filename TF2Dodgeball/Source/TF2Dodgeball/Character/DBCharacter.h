@@ -102,4 +102,7 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerRPCAirBlast(float InAttackRange, float InAttackRadius, FVector InStart, FVector InEnd);
+
+	UFUNCTION(NetMulticast, UnReliable)
+	void MulticastRPCAirBlastEffect();
 };

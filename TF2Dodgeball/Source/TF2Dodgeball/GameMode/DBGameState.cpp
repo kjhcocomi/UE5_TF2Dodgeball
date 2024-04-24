@@ -9,6 +9,7 @@
 #include "System/DBGameInstance.h"
 #include "UI/DBChatWidget.h"
 #include "UI/DBChatTmpWidget.h"
+#include "Character/DBCharacter.h"
 
 void ADBGameState::SetCurrentGameState(EDBGameState GS)
 {

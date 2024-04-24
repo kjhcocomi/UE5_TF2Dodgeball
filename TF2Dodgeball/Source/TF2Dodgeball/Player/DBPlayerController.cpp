@@ -6,7 +6,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
-#include "Character/DBCharacter.h"
+#include "Character/DBPlayer.h"
 #include "Animation/DBAnimInstance.h"
 #include "TF2Dodgeball.h"
 #include "Subsystem/DBUIManagerSubsystem.h"
@@ -81,6 +81,7 @@ void ADBPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(ShowSelectTeamUIAction, ETriggerEvent::Started, this, &ThisClass::ShowSelectTeamUI);
 		EnhancedInputComponent->BindAction(ShowMenuUIAction, ETriggerEvent::Started, this, &ThisClass::ShowMenuUI);
 		EnhancedInputComponent->BindAction(ShowChatUIAction, ETriggerEvent::Started, this, &ThisClass::ShowChatUI);
+		EnhancedInputComponent->BindAction(ChangeViewAction, ETriggerEvent::Started, this, &ThisClass::ChangeView);
 	}
 }
 
@@ -149,21 +150,22 @@ void ADBPlayerController::AirBlast(const FInputActionValue& InputValue)
 
 	if (bCanAirBlast == false) return;
 	bCanAirBlast = false;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle_AirBlast, this, &ADBPlayerController::CoolDown_AirBlast, 1.f, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_AirBlast, this, &ADBPlayerController::CoolDown_AirBlast, 1.1f, false);
 	UDBUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UDBUIManagerSubsystem>();
 	if (UIManager)
 	{
 		UDBHudWidget* HudUI = UIManager->GetHudUI();
 		if (HudUI)
 		{
-			HudUI->StartCoolDown(1.f);
+			HudUI->StartCoolDown(1.1f);
 		}
 	}
 
-	if (AirBlastMontage)
+	/*if (AirBlastMontage)
 	{
 		GetCharacter()->PlayAnimMontage(AirBlastMontage);
-	}
+	}*/
+
 	Cast<ADBCharacter>(GetCharacter())->AirBlast();
 }
 
@@ -217,6 +219,15 @@ void ADBPlayerController::ShowChatUI(const FInputActionValue& InputValue)
 	if (UIManager)
 	{
 		UIManager->ShowChatUI();
+	}
+}
+
+void ADBPlayerController::ChangeView(const FInputActionValue& InputValue)
+{
+	ADBPlayer* DBP = Cast<ADBPlayer>(GetPawn());
+	if (DBP)
+	{
+		DBP->ChangeView();
 	}
 }
 
