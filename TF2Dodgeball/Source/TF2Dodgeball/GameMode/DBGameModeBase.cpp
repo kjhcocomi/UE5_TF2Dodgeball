@@ -159,13 +159,15 @@ void ADBGameModeBase::Ready()
 		// Ready -> Wait
 		DodgeBallGameState->SetCurrentGameState(EDBGameState::Wait);
 		GetWorld()->GetTimerManager().ClearTimer(TimerHandle_Ready);
+		DodgeBallGameState->MulticastRPCReadyCancel();
 	}
 	else
 	{
 		if (GetWorld()->GetTimerManager().IsTimerActive(TimerHandle_Ready) == false)
 		{
 			// 몇초 후 Progress 상태로 변하도록 예약
-			GetWorld()->GetTimerManager().SetTimer(TimerHandle_Ready, this, &ADBGameModeBase::ReadyToProgress, 5.f, false);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_Ready, this, &ADBGameModeBase::ReadyToProgress, 10.f, false);
+			DodgeBallGameState->MulticastRPCReady(10.f);
 		}
 		for (int i = 0; i < DBCharacters.Num(); i++)
 		{
@@ -227,6 +229,7 @@ void ADBGameModeBase::Finish()
 	if (GetWorld()->GetTimerManager().IsTimerActive(TimerHandle_Finish) == false)
 	{		
 		// 몇초 후 Ready 상태로
+		DodgeBallGameState->MulticastRPCGameResult(RocketOwnerTeam);
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle_Finish, this, &ADBGameModeBase::FinishToReady, 5.f, false);
 	}
 }

@@ -79,6 +79,19 @@ public:
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+private:
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class USoundBase> BeepSound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class USoundBase> HitSound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class USoundBase> AirBlastHitSound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class USoundBase> AirBlastNoHitSound;
+
 public:
 	// Client에서 호출
 	UFUNCTION()
@@ -103,6 +116,13 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerRPCAirBlast(float InAttackRange, float InAttackRadius, FVector InStart, FVector InEnd);
 
+	UFUNCTION(Client, Reliable)
+	void ClientRPCBeepSound();
+
+	UFUNCTION(Client, Reliable)
+	void ClientRPCHitSucceed();
+
 	UFUNCTION(NetMulticast, UnReliable)
-	void MulticastRPCAirBlastEffect();
+	void MulticastRPCAirBlastEffect(bool HitDetected);
+
 };

@@ -19,6 +19,7 @@ void UDBSelectTeamWidget::NativeConstruct()
 	Button_Spectator->OnClicked.AddDynamic(this, &UDBSelectTeamWidget::PushSpectatorButton);
 	Button_Red->OnClicked.AddDynamic(this, &UDBSelectTeamWidget::PushRedButton);
 	Button_Blue->OnClicked.AddDynamic(this, &UDBSelectTeamWidget::PushBlueButton);
+	Button_Quit->OnClicked.AddDynamic(this, &UDBSelectTeamWidget::PushQuitButton);
 }
 
 void UDBSelectTeamWidget::PushSpectatorButton()
@@ -61,4 +62,9 @@ void UDBSelectTeamWidget::PushBlueButton()
 			HideUI();
 		}
 	}
+}
+
+void UDBSelectTeamWidget::PushQuitButton()
+{
+	UKismetSystemLibrary::QuitGame(GetWorld(), nullptr, EQuitPreference::Quit, false);
 }

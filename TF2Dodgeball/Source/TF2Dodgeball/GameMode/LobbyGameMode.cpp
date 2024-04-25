@@ -29,4 +29,6 @@ void ALobbyGameMode::BeginPlay()
 			LobbyWidget->ShowUI();
 		}
 	}
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), LobbyBGMSound, FVector(0,0,0));
+
 }

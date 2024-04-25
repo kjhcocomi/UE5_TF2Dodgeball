@@ -69,7 +69,6 @@ private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<class ADBCharacter> TargetCharacter;
 
-
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

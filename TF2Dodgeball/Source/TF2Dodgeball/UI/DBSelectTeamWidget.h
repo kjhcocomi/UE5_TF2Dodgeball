@@ -28,6 +28,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<class UButton> Button_Blue;
 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<class UButton> Button_Quit;
+
 private:
 	UFUNCTION()
 	void PushSpectatorButton();
@@ -37,4 +40,7 @@ private:
 
 	UFUNCTION()
 	void PushBlueButton();
+
+	UFUNCTION()
+	void PushQuitButton();
 };

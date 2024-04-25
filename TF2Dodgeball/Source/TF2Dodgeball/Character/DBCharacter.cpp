@@ -116,14 +116,14 @@ void ADBCharacter::AirBlast()
 
 #if ENABLE_DRAW_DEBUG
 
-	if (DBPC)
+	/*if (DBPC)
 	{
 		FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
 		float CapsuleHalfHeight = AttackRange * 0.5f;
 		FColor DrawColor = FColor::Red;
 
 		DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(ControlRotation.Vector()).ToQuat(), DrawColor, false, 5.0f);
-	}
+	}*/
 #endif
 }
 
@@ -251,18 +251,25 @@ void ADBCharacter::OnRep_DBCharacterState()
 	}
 }
 
-void ADBCharacter::MulticastRPCAirBlastEffect_Implementation()
+void ADBCharacter::MulticastRPCAirBlastEffect_Implementation(bool HitDetected)
 {
 	UParticleSystemComponent* PS = Cast<UParticleSystemComponent>(GetComponentByClass(UParticleSystemComponent::StaticClass()));
 	if (PS)
 	{
 		PS->Activate();
 	}
+	if (HitDetected)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), AirBlastHitSound, GetActorLocation());
+	}
+	else
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), AirBlastNoHitSound, GetActorLocation());
+	}
 }
 
 void ADBCharacter::ServerRPCAirBlast_Implementation(float InAttackRange, float InAttackRadius, FVector InStart, FVector InEnd)
 {
-	MulticastRPCAirBlastEffect();
 	FHitResult OutHitResult;
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
 	bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, InStart, InEnd, FQuat::Identity, CCHANNEL_DBAIRBLAST, FCollisionShape::MakeSphere(InAttackRadius), Params);
@@ -274,6 +281,19 @@ void ADBCharacter::ServerRPCAirBlast_Implementation(float InAttackRange, float I
 			DBRocket->Reflect_Ready(this);
 		}
 	}
+	MulticastRPCAirBlastEffect(HitDetected);
+	// TODO : Airblast Sound, HitDetected에 따라 다른 소리
+}
+
+
+void ADBCharacter::ClientRPCBeepSound_Implementation()
+{
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), BeepSound, GetActorLocation());
+}
+
+void ADBCharacter::ClientRPCHitSucceed_Implementation()
+{
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), HitSound, GetActorLocation());
 }
 
 void ADBCharacter::ServerRPCSetTeam_Implementation(TeamColor InTeamColor)
@@ -290,6 +310,8 @@ void ADBCharacter::ServerRPCSetState_Implementation(DBCharacterState InState)
 	DBCharacterStateLocal = InState;
 }
 
+
+
 void ADBCharacter::ServerRPCSetName_Implementation(const FString& InName)
 {
 	PlayerName = InName;
@@ -300,3 +322,4 @@ void ADBCharacter::ServerRPCSetName_Implementation(const FString& InName)
 		DBGS->MulticastRPCBroadCastMessage(nullptr, FText::FromString(EnterMessage));
 	}
 }
+

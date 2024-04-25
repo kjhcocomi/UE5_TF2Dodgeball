@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameStateBase.h"
 #include "Utils/DBEnums.h"
+#include "Kismet/GameplayStatics.h"
 #include "DBGameState.generated.h"
 
 class ADBCharacter;
@@ -30,6 +31,45 @@ public:
 	UPROPERTY(Replicated)
 	int RedWinCount = 0;
 
+private:
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> CountDownSound5;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> CountDownSound4;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> CountDownSound3;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> CountDownSound2;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> CountDownSound1;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> CountDownSound0;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> VictorySound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> LoseSound;
+
+	FTimerHandle TimerHandle5;
+	FTimerHandle TimerHandle4;
+	FTimerHandle TimerHandle3;
+	FTimerHandle TimerHandle2;
+	FTimerHandle TimerHandle1;
+	FTimerHandle TimerHandle0;
+
+	void Count5() { UGameplayStatics::PlaySoundAtLocation(GetWorld(), CountDownSound5, FVector(0, 0, 0)); }
+	void Count4() { UGameplayStatics::PlaySoundAtLocation(GetWorld(), CountDownSound4, FVector(0, 0, 0)); }
+	void Count3() { UGameplayStatics::PlaySoundAtLocation(GetWorld(), CountDownSound3, FVector(0, 0, 0)); }
+	void Count2() { UGameplayStatics::PlaySoundAtLocation(GetWorld(), CountDownSound2, FVector(0, 0, 0)); }
+	void Count1() { UGameplayStatics::PlaySoundAtLocation(GetWorld(), CountDownSound1, FVector(0, 0, 0)); }
+	void Count0() { UGameplayStatics::PlaySoundAtLocation(GetWorld(), CountDownSound0, FVector(0, 0, 0)); }
+
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -40,4 +80,13 @@ public:
 public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPCBroadCastMessage(class ADBCharacter* Sender, const FText& Text);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCReady(int second);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCReadyCancel();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCGameResult(TeamColor WinnerTeam);
 };

@@ -172,6 +172,10 @@ void ADBRocket::FindTargetPlayer()
 	if (AliveTargetCharacters.IsEmpty() == false)
 	{
 		TargetCharacter = AliveTargetCharacters[0];
+		if (TargetCharacter)
+		{
+			TargetCharacter->ClientRPCBeepSound();
+		}
 	}
 	else
 	{
@@ -188,8 +192,13 @@ void ADBRocket::Explode(ADBCharacter* HittedCharacter)
 		if (AttackerTeam != HittedCharacter->GetTeamColor())
 		{
 			HittedCharacter->OnDamaged(this);
-			if (Attacker) Attacker->KillCount++;
+			if (Attacker)
+			{
+				Attacker->KillCount++;
+				Attacker->ClientRPCHitSucceed();
+			}
 			MulticastRPCExplodeRocket(Attacker, HittedCharacter);
+			// TODO : ClientRPC Damage Sound, Damage UI
 			if (DBGameMode->GetRocketOwnerTeam() != AttackerTeam)
 			{
 				DBGameMode->ChangeRocketOwnerTeam();
@@ -267,5 +276,6 @@ void ADBRocket::MulticastRPCExplodeRocket_Implementation(ADBCharacter* InAttacke
 		}
 		// effect
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticle, GetActorLocation());
+		// TODO? : Sound
 	}
 }
