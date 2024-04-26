@@ -52,7 +52,7 @@ private:
 	FTimerHandle TimerHandle_Finish;
 	TObjectPtr<class ADBRocket> DBRocket;
 
-	TArray<class ADBPlayerController*> DBPlayerControllers;
+	TArray<class AController*> DBControllers;
 	TArray<class ADBCharacter*> DBCharacters;
 	TArray<class ADBCharacter*> DBBlueCharacters;
 	TArray<class ADBCharacter*> DBRedCharacters;

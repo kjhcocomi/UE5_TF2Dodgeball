@@ -92,12 +92,12 @@ void ADBGameModeBase::OnRocketDestroyed(AActor* DestroyedActor)
 void ADBGameModeBase::GatherCharacterInfo()
 {
 	// Gather PlayerControllers
-	DBPlayerControllers.Empty();
-	for (ADBPlayerController* PlayerController : TActorRange<ADBPlayerController>(GetWorld()))
+	DBControllers.Empty();
+	for (AController* PlayerController : TActorRange<AController>(GetWorld()))
 	{
 		if (PlayerController)
 		{
-			DBPlayerControllers.Add(PlayerController);
+			DBControllers.Add(PlayerController);
 		}
 	}
 
@@ -105,9 +105,9 @@ void ADBGameModeBase::GatherCharacterInfo()
 	DBBlueCharacters.Empty();
 	DBRedCharacters.Empty();
 
-	for (int i = 0; i < DBPlayerControllers.Num(); i++)
+	for (int i = 0; i < DBControllers.Num(); i++)
 	{
-		ADBCharacter* DBCharacter = Cast<ADBCharacter>(DBPlayerControllers[i]->GetPawn());
+		ADBCharacter* DBCharacter = Cast<ADBCharacter>(DBControllers[i]->GetPawn());
 		if (DBCharacter)
 		{
 			DBCharacters.Add(DBCharacter);

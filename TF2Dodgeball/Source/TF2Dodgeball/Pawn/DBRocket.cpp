@@ -6,6 +6,7 @@
 #include "Character/DBPlayer.h"
 #include "System/DBGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Interfaces/DBGameInterface.h"
 #include "GameMode/DBGameModeBase.h"
 #include "Player/DBPlayerState.h"
@@ -74,11 +75,11 @@ void ADBRocket::Tick(float DeltaTime)
 			double Distance = FVector::Distance(TargetPosition, MyPosition);
 			if (Distance >= 300.f)
 			{
-				CurrentDirection = CurrentDirection + TargetDirection * DeltaTime * FloaingPawnMovement->MaxSpeed / 240.f;
+				CurrentDirection = CurrentDirection + TargetDirection * DeltaTime * FloaingPawnMovement->MaxSpeed / 250.f;
 			}
 			else
 			{
-				CurrentDirection = CurrentDirection + TargetDirection * DeltaTime * FloaingPawnMovement->MaxSpeed / 80.f;
+				CurrentDirection = CurrentDirection + TargetDirection * DeltaTime * FloaingPawnMovement->MaxSpeed / 100.f;
 			}
 			
 			CurrentDirection.Normalize();
@@ -171,7 +172,28 @@ void ADBRocket::FindTargetPlayer()
 	// tmp
 	if (AliveTargetCharacters.IsEmpty() == false)
 	{
-		TargetCharacter = AliveTargetCharacters[0];
+		ADBCharacter* TargetTmp = nullptr;
+		if (Attacker)
+		{
+			float MaxDotValue = -999999999.f;
+			for (int i = 0; i < AliveTargetCharacters.Num(); i++)
+			{
+				FVector RocketDir = CurrentDirection;
+				FVector RocketToTargetVec = AliveTargetCharacters[i]->GetActorLocation() - Attacker->GetActorLocation();
+				float DotValue = FVector::DotProduct(RocketDir, RocketToTargetVec);
+				if (DotValue > MaxDotValue)
+				{
+					MaxDotValue = DotValue;
+					TargetTmp = AliveTargetCharacters[i];
+				}
+			}
+		}
+		else
+		{
+			int RandVal = UKismetMathLibrary::RandomInteger(AliveTargetCharacters.Num());
+			TargetTmp = AliveTargetCharacters[RandVal];
+		}
+		TargetCharacter = TargetTmp;
 		if (TargetCharacter)
 		{
 			TargetCharacter->ClientRPCBeepSound();
