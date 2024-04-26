@@ -95,7 +95,7 @@ void ADBCharacter::AirBlast()
 	//FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
 
 	const float AttackRange = 400.f;
-	const float AttackRadius = 150.f;
+	const float AttackRadius = 200.f;
 	FVector Start;
 	FVector End;
 	ADBPlayerController* DBPC = Cast<ADBPlayerController>(GetController());
@@ -116,14 +116,14 @@ void ADBCharacter::AirBlast()
 
 #if ENABLE_DRAW_DEBUG
 
-	if (DBPC)
+	/*if (DBPC)
 	{
 		FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
 		float CapsuleHalfHeight = AttackRange * 0.5f;
 		FColor DrawColor = FColor::Red;
 
 		DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(ControlRotation.Vector()).ToQuat(), DrawColor, false, 5.0f);
-	}
+	}*/
 #endif
 }
 

@@ -55,6 +55,8 @@ public:
 	bool bReady = false;
 	FTimerHandle TimerHandle_Reflect;
 	float CheckTime = 0.1f;
+	int ReflectCnt = 0;
+
 private:
 	UPROPERTY(EditAnywhere, Category = SphereComponent)
 	TObjectPtr<class USphereComponent> SphereComponent;
@@ -85,7 +87,7 @@ public:
 	virtual void OnRep_RocketParticle();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastRPCExplodeRocket(ADBCharacter* InAttacker, ADBCharacter* InVictim);
+	void MulticastRPCExplodeRocket(ADBCharacter* InAttacker, ADBCharacter* InVictim, float InRocketSpeed, float InReflectCnt);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPCRocketSpeed(float RocketSpeed);

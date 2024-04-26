@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Pawn/DBRocket.h"
@@ -18,6 +18,8 @@
 #include "GameMode/DBGameState.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "UI/DBHudWidget.h"
+#include "UI/DBChatWidget.h"
+#include "UI/DBChatTmpWidget.h"
 
 
 // Sets default values
@@ -77,11 +79,11 @@ void ADBRocket::Tick(float DeltaTime)
 			double Distance = FVector::Distance(TargetPosition, MyPosition);
 			if (Distance >= 300.f)
 			{
-				CurrentDirection = CurrentDirection + TargetDirection * DeltaTime * FloaingPawnMovement->MaxSpeed / 250.f;
+				CurrentDirection = CurrentDirection + TargetDirection * DeltaTime * FloaingPawnMovement->MaxSpeed / 260.f;
 			}
 			else
 			{
-				CurrentDirection = CurrentDirection + TargetDirection * DeltaTime * FloaingPawnMovement->MaxSpeed / 100.f;
+				CurrentDirection = CurrentDirection + TargetDirection * DeltaTime * FloaingPawnMovement->MaxSpeed / 70.f;
 			}
 			
 			CurrentDirection.Normalize();
@@ -133,10 +135,10 @@ void ADBRocket::FindTargetPlayer()
 	ADBGameModeBase* DBGameMode = Cast<ADBGameModeBase>(GetWorld()->GetAuthGameMode());
 	TeamColor TargetTeam;
 	TArray<ADBCharacter*> DBTargetCharacters;
-	// Å¸°Ù ÆÀ º¯°æ, Å¸°Ù Ä³¸¯ÅÍµé ¾ò¾î¿È
+	// íƒ€ê²Ÿ íŒ€ ë³€ê²½, íƒ€ê²Ÿ ìºë¦­í„°ë“¤ ì–»ì–´ì˜´
 	if (AttackerTeam == TeamColor::None) 
 	{
-		// ¼­ºê°øÀº Owner¿¡°Ô 
+		// ì„œë¸Œê³µì€ Ownerì—ê²Œ 
 		TargetTeam = DBGameMode->GetRocketOwnerTeam();
 		if (TargetTeam == TeamColor::Blue)
 		{
@@ -161,7 +163,7 @@ void ADBRocket::FindTargetPlayer()
 	}
 	//GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, FString::Printf(TEXT("%d"), DBTargetCharacters.Num()));
 
-	// Å¸°Ù Ä³¸¯ÅÍµé Áß »ì¾ÆÀÖ´Â Ä³¸¯ÅÍ¸¸ ÃßÃâ
+	// íƒ€ê²Ÿ ìºë¦­í„°ë“¤ ì¤‘ ì‚´ì•„ìˆëŠ” ìºë¦­í„°ë§Œ ì¶”ì¶œ
 	TArray<ADBCharacter*> AliveTargetCharacters;
 	for (int i = 0; i < DBTargetCharacters.Num(); i++)
 	{
@@ -221,7 +223,7 @@ void ADBRocket::Explode(ADBCharacter* HittedCharacter)
 				Attacker->KillCount++;
 				Attacker->ClientRPCHitSucceed();
 			}
-			MulticastRPCExplodeRocket(Attacker, HittedCharacter);
+			MulticastRPCExplodeRocket(Attacker, HittedCharacter, FloaingPawnMovement->MaxSpeed, ReflectCnt);
 			MulticastRPCRocketSpeed(-1.f);
 			// TODO : ClientRPC Damage Sound, Damage UI
 			if (DBGameMode->GetRocketOwnerTeam() != AttackerTeam)
@@ -229,7 +231,7 @@ void ADBRocket::Explode(ADBCharacter* HittedCharacter)
 				DBGameMode->ChangeRocketOwnerTeam();
 			}
 		}
-		// TODO : Æø¹ß
+		// TODO : í­ë°œ
 		Destroy();
 	}
 }
@@ -246,6 +248,7 @@ void ADBRocket::Reflect_Ready(ADBCharacter* InAttacker)
 
 void ADBRocket::Reflect()
 {
+	ReflectCnt++;
 	FloaingPawnMovement->MaxSpeed = FloaingPawnMovement->MaxSpeed + 180.f;
 	MulticastRPCRocketSpeed(FloaingPawnMovement->MaxSpeed);
 
@@ -287,7 +290,7 @@ void ADBRocket::OnRep_RocketParticle()
 	}
 }
 
-void ADBRocket::MulticastRPCExplodeRocket_Implementation(ADBCharacter* InAttacker, ADBCharacter* InVictim)
+void ADBRocket::MulticastRPCExplodeRocket_Implementation(ADBCharacter* InAttacker, ADBCharacter* InVictim, float InRocketSpeed, float InReflectCnt)
 {
 	if (HasAuthority() == false)
 	{
@@ -299,16 +302,31 @@ void ADBRocket::MulticastRPCExplodeRocket_Implementation(ADBCharacter* InAttacke
 			{
 				KillLogUI->AddKillLogElement(InAttacker, InVictim);
 			}
+			FString VictimName = InVictim->PlayerName;
+			int RocketSpeed = (int)(InRocketSpeed) / 20;
+			FString DeadMessage = VictimName + FString::Printf(TEXT(" ë‹˜ì´ ì‚¬ë§í•˜ì˜€ìŠµë‹ˆë‹¤. (Speed : "))
+				+ FString::FromInt(RocketSpeed) + FString::Printf(TEXT(", Deflection : "))
+				+ FString::FromInt(InReflectCnt) + FString::Printf(TEXT(")"));
+
+			UDBChatWidget* ChatUI = UIManager->GetChatWidget();
+			if (ChatUI)
+			{
+				ChatUI->AddChat(nullptr, FText::FromString(DeadMessage));
+			}
+			UDBChatTmpWidget* ChatTmpUI = UIManager->GetChatTmpWidget();
+			if (ChatTmpUI)
+			{
+				ChatTmpUI->AddChat(nullptr, FText::FromString(DeadMessage));
+			}
 		}
 		// effect
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticle, GetActorLocation());
-		// TODO? : Sound
+
 	}
 }
 
 void ADBRocket::MulticastRPCRocketSpeed_Implementation(float RocketSpeed)
 {
-	// TODO : UI
 	if (HasAuthority() == false)
 	{
 		UDBUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UDBUIManagerSubsystem>();
