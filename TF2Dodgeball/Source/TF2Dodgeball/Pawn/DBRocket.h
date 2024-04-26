@@ -86,4 +86,7 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPCExplodeRocket(ADBCharacter* InAttacker, ADBCharacter* InVictim);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCRocketSpeed(float RocketSpeed);
 };

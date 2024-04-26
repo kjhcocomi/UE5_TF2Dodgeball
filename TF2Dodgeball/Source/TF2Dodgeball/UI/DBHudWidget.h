@@ -26,9 +26,13 @@ private:
 
 public:
 	void SetImage(class ADBCharacter* Player);
+	void SetRocketSpeedText(float RocketSpeed);
 	void StartCoolDown(float InCoolTime);
 
 public:
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<class UTextBlock> Text_RocketSpeed;
+
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<class UImage> Image_Pyro_Blue;
 

@@ -82,6 +82,7 @@ void ADBPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(ShowMenuUIAction, ETriggerEvent::Started, this, &ThisClass::ShowMenuUI);
 		EnhancedInputComponent->BindAction(ShowChatUIAction, ETriggerEvent::Started, this, &ThisClass::ShowChatUI);
 		EnhancedInputComponent->BindAction(ChangeViewAction, ETriggerEvent::Started, this, &ThisClass::ChangeView);
+		EnhancedInputComponent->BindAction(CallMedicAction, ETriggerEvent::Started, this, &ThisClass::CallMedic);
 	}
 }
 
@@ -228,6 +229,15 @@ void ADBPlayerController::ChangeView(const FInputActionValue& InputValue)
 	if (DBP)
 	{
 		DBP->ChangeView();
+	}
+}
+
+void ADBPlayerController::CallMedic(const FInputActionValue& InputValue)
+{
+	ADBCharacter* DBC = Cast<ADBCharacter>(GetPawn());
+	if (DBC)
+	{
+		DBC->CallMedic();
 	}
 }
 

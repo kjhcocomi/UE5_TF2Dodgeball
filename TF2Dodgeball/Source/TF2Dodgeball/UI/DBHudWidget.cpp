@@ -4,6 +4,7 @@
 #include "UI/DBHudWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/Image.h"
+#include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 #include "Character/DBCharacter.h"
 #include "Utils/DBEnums.h"
@@ -87,6 +88,17 @@ void UDBHudWidget::SetImage(ADBCharacter* Player)
 			}
 		}
 	}
+}
+
+void UDBHudWidget::SetRocketSpeedText(float RocketSpeed)
+{
+	FString RocketSpeedStr = FString::Printf(TEXT(""));
+	RocketSpeed /= 20;
+	if (RocketSpeed > 0)
+	{
+		RocketSpeedStr = FString::Printf(TEXT("Speed : ")) + FString::FromInt((int)RocketSpeed);
+	}
+	Text_RocketSpeed->SetText(FText::FromString(RocketSpeedStr));
 }
 
 void UDBHudWidget::StartCoolDown(float InCoolTime)

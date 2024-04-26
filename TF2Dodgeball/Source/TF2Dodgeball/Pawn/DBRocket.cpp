@@ -17,6 +17,7 @@
 #include "UI/DBKillLogWidget.h"
 #include "GameMode/DBGameState.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "UI/DBHudWidget.h"
 
 
 // Sets default values
@@ -53,6 +54,7 @@ void ADBRocket::BeginPlay()
 	if (HasAuthority())
 	{
 		SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnBeginOverlap);
+		MulticastRPCRocketSpeed(FloaingPawnMovement->MaxSpeed);
 	}
 }
 
@@ -220,6 +222,7 @@ void ADBRocket::Explode(ADBCharacter* HittedCharacter)
 				Attacker->ClientRPCHitSucceed();
 			}
 			MulticastRPCExplodeRocket(Attacker, HittedCharacter);
+			MulticastRPCRocketSpeed(-1.f);
 			// TODO : ClientRPC Damage Sound, Damage UI
 			if (DBGameMode->GetRocketOwnerTeam() != AttackerTeam)
 			{
@@ -244,6 +247,7 @@ void ADBRocket::Reflect_Ready(ADBCharacter* InAttacker)
 void ADBRocket::Reflect()
 {
 	FloaingPawnMovement->MaxSpeed = FloaingPawnMovement->MaxSpeed + 180.f;
+	MulticastRPCRocketSpeed(FloaingPawnMovement->MaxSpeed);
 
 	FVector Direction = Attacker->GetController()->GetControlRotation().Vector();
 	Direction.Normalize();
@@ -299,5 +303,22 @@ void ADBRocket::MulticastRPCExplodeRocket_Implementation(ADBCharacter* InAttacke
 		// effect
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticle, GetActorLocation());
 		// TODO? : Sound
+	}
+}
+
+void ADBRocket::MulticastRPCRocketSpeed_Implementation(float RocketSpeed)
+{
+	// TODO : UI
+	if (HasAuthority() == false)
+	{
+		UDBUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UDBUIManagerSubsystem>();
+		if (UIManager)
+		{
+			UDBHudWidget* Hud = UIManager->GetHudUI();
+			if (Hud)
+			{
+				Hud->SetRocketSpeedText(RocketSpeed);
+			}
+		}
 	}
 }

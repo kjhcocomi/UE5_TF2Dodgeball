@@ -94,8 +94,8 @@ void ADBCharacter::AirBlast()
 	//FHitResult OutHitResult;
 	//FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
 
-	const float AttackRange = 300.f;
-	const float AttackRadius = 100.f;
+	const float AttackRange = 400.f;
+	const float AttackRadius = 150.f;
 	FVector Start;
 	FVector End;
 	ADBPlayerController* DBPC = Cast<ADBPlayerController>(GetController());
@@ -116,14 +116,14 @@ void ADBCharacter::AirBlast()
 
 #if ENABLE_DRAW_DEBUG
 
-	/*if (DBPC)
+	if (DBPC)
 	{
 		FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
 		float CapsuleHalfHeight = AttackRange * 0.5f;
 		FColor DrawColor = FColor::Red;
 
 		DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(ControlRotation.Vector()).ToQuat(), DrawColor, false, 5.0f);
-	}*/
+	}
 #endif
 }
 
@@ -149,9 +149,27 @@ void ADBCharacter::OnDamaged(ADBRocket* DBRocket)
 	DeathCount++;
 }
 
+void ADBCharacter::CallMedic()
+{
+	if (DBCharacterStateLocal == DBCharacterState::Ready || DBCharacterStateLocal == DBCharacterState::Alive)
+	{
+		if (bCanCallMedic)
+		{
+			bCanCallMedic = false;
+			GetWorld()->GetTimerManager().SetTimer(CallMedicHandle, this, &ADBCharacter::CallMedicTimer, 1.f, false);
+			ServerRPCCallMedic();
+		}
+	}
+}
+
 DBCharacterState ADBCharacter::GetCharacterState()
 {
 	return DBCharacterStateLocal;
+}
+
+void ADBCharacter::CallMedicTimer()
+{
+	bCanCallMedic = true;
 }
 
 void ADBCharacter::SetName(FText InText)
@@ -323,3 +341,19 @@ void ADBCharacter::ServerRPCSetName_Implementation(const FString& InName)
 	}
 }
 
+void ADBCharacter::MulticastRPCCallMedic_Implementation()
+{
+	if (IsLocallyControlled())
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), CallMedicSound, GetActorLocation());
+	}
+	else
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), CallMedicSound2, GetActorLocation());
+	}
+}
+
+void ADBCharacter::ServerRPCCallMedic_Implementation()
+{
+	MulticastRPCCallMedic();
+}

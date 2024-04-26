@@ -38,6 +38,7 @@ private:
 	void ShowMenuUI(const FInputActionValue& InputValue);
 	void ShowChatUI(const FInputActionValue& InputValue);
 	void ChangeView(const FInputActionValue& InputValue);
+	void CallMedic(const FInputActionValue& InputValue);
 
 	void CoolDown_AirBlast();
 
@@ -78,6 +79,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Input)
 	TObjectPtr<class UInputAction> ChangeViewAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	TObjectPtr<class UInputAction> CallMedicAction;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = Anim)

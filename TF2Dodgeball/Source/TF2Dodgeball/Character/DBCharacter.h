@@ -40,8 +40,14 @@ public:
 	void Spectate();
 	void StartGame();
 	void OnDamaged(class ADBRocket* DBRocket);
+	void CallMedic();
 
 	DBCharacterState GetCharacterState();
+
+private:
+	bool bCanCallMedic = true;
+	FTimerHandle CallMedicHandle;
+	void CallMedicTimer();
 
 protected:
 	UPROPERTY(EditAnywhere)
@@ -92,6 +98,12 @@ private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<class USoundBase> AirBlastNoHitSound;
 
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class USoundBase> CallMedicSound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class USoundBase> CallMedicSound2;
+
 public:
 	// Client에서 호출
 	UFUNCTION()
@@ -116,6 +128,9 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerRPCAirBlast(float InAttackRange, float InAttackRadius, FVector InStart, FVector InEnd);
 
+	UFUNCTION(Server, Reliable)
+	void ServerRPCCallMedic();
+
 	UFUNCTION(Client, Reliable)
 	void ClientRPCBeepSound();
 
@@ -125,4 +140,6 @@ public:
 	UFUNCTION(NetMulticast, UnReliable)
 	void MulticastRPCAirBlastEffect(bool HitDetected);
 
+	UFUNCTION(NetMulticast, UnReliable)
+	void MulticastRPCCallMedic();
 };
