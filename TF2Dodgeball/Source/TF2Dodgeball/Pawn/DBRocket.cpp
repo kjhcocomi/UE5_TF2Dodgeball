@@ -57,6 +57,7 @@ void ADBRocket::BeginPlay()
 	{
 		SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnBeginOverlap);
 		MulticastRPCRocketSpeed(FloaingPawnMovement->MaxSpeed);
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_Tick, this, &ADBRocket::CustomTick, 0.05f, true, 0.f);
 	}
 }
 
@@ -66,41 +67,7 @@ void ADBRocket::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (HasAuthority())
 	{
-		if (TargetCharacter != nullptr)
-		{
-			bFindTarget = true;
-			
-			FVector TargetPosition = TargetCharacter->GetController()->GetPawn()->GetActorLocation();
-			FVector MyPosition = GetActorLocation();
-
-			FVector TargetDirection = TargetPosition - MyPosition;
-			TargetDirection.Normalize();
-
-			double Distance = FVector::Distance(TargetPosition, MyPosition);
-			if (Distance >= 300.f)
-			{
-				CurrentDirection = CurrentDirection + TargetDirection * DeltaTime * FloaingPawnMovement->MaxSpeed / 260.f;
-			}
-			else
-			{
-				CurrentDirection = CurrentDirection + TargetDirection * DeltaTime * FloaingPawnMovement->MaxSpeed / 70.f;
-			}
-			
-			CurrentDirection.Normalize();
-			AddMovementInput(CurrentDirection, 1);
-			SetActorRotation(CurrentDirection.Rotation());
-			/*UPrimitiveComponent* UPC = Cast<UPrimitiveComponent>(GetRootComponent());
-			if (UPC)
-			{
-				UPC->SetPhysicsLinearVelocity(CurrentDirection * FloaingPawnMovement->MaxSpeed);
-			}*/
-		}
-		else
-		{
-			bFindTarget = false;
-			//GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("No Target"));
-			FindTargetPlayer();
-		}
+		
 	}
 	else
 	{
@@ -258,6 +225,59 @@ void ADBRocket::Reflect()
 
 	FindTargetPlayer();
 	bReady = false;
+}
+
+void ADBRocket::CustomTick()
+{
+	if (HasAuthority())
+	{
+		if (TargetCharacter != nullptr)
+		{
+			bFindTarget = true;
+
+			FVector TargetPosition = TargetCharacter->GetController()->GetPawn()->GetActorLocation();
+			FVector MyPosition = GetActorLocation();
+
+			FVector TargetDirection = TargetPosition - MyPosition;
+			TargetDirection.Normalize();
+
+			float t = TurnRate + TurnRateInc * ReflectCnt;
+			if (t < 0.f) t = 0.f;
+			if (t > 1.f) t = 1.f;
+
+			
+
+			double Distance = FVector::Distance(TargetPosition, MyPosition);
+			if (Distance >= 300.f)
+			{
+				//CurrentDirection = CurrentDirection + TargetDirection * DeltaTime * FloaingPawnMovement->MaxSpeed / 260.f;
+				CurrentDirection = CurrentDirection + (TargetDirection - CurrentDirection) * t / 3;
+				TmpValue = 1.5f;
+			}
+			else
+			{
+				TmpValue += 0.05f;
+				if (TmpValue > 3) TmpValue = 3;
+				//CurrentDirection = CurrentDirection + TargetDirection * DeltaTime * FloaingPawnMovement->MaxSpeed / 70.f;
+				CurrentDirection = CurrentDirection + (TargetDirection - CurrentDirection) * t / 3 * TmpValue;
+			}
+
+			CurrentDirection.Normalize();
+			AddMovementInput(CurrentDirection, 1);
+			SetActorRotation(CurrentDirection.Rotation());
+			/*UPrimitiveComponent* UPC = Cast<UPrimitiveComponent>(GetRootComponent());
+			if (UPC)
+			{
+				UPC->SetPhysicsLinearVelocity(CurrentDirection * FloaingPawnMovement->MaxSpeed);
+			}*/
+		}
+		else
+		{
+			bFindTarget = false;
+			//GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, TEXT("No Target"));
+			FindTargetPlayer();
+		}
+	}
 }
 
 //void ADBRocket::SetCurrentDirection(FVector Direction)

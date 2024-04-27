@@ -37,6 +37,7 @@ public:
 	void Explode(class ADBCharacter* HittedCharacter);
 	void Reflect_Ready(class ADBCharacter* InAttacker);
 	void Reflect();
+	void CustomTick();
 	//void SetCurrentDirection(FVector Direction);
 
 public:
@@ -54,8 +55,15 @@ public:
 	
 	bool bReady = false;
 	FTimerHandle TimerHandle_Reflect;
+	FTimerHandle TimerHandle_Tick;
 	float CheckTime = 0.1f;
+
+	float TurnRate = 0.25f;
+	float TurnRateInc = 0.05f;
 	int ReflectCnt = 0;
+
+	bool bFirstEnter = true;
+	float TmpValue = 1.5f;
 
 private:
 	UPROPERTY(EditAnywhere, Category = SphereComponent)
