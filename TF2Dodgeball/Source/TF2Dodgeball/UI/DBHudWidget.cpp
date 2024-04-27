@@ -101,6 +101,21 @@ void UDBHudWidget::SetRocketSpeedText(float RocketSpeed)
 	Text_RocketSpeed->SetText(FText::FromString(RocketSpeedStr));
 }
 
+void UDBHudWidget::SetCountDownText(int sec)
+{
+	if (sec > 0)
+	{
+		Text_CountDown->SetVisibility(ESlateVisibility::Visible);
+		FString SecStr = FString::FromInt(sec);
+		Text_CountDown->SetText(FText::FromString(SecStr));
+	}
+	else
+	{
+		Text_CountDown->SetVisibility(ESlateVisibility::Hidden);
+	}
+	
+}
+
 void UDBHudWidget::StartCoolDown(float InCoolTime)
 {
 	CurrentSecond = 0.f;

@@ -63,12 +63,12 @@ private:
 	FTimerHandle TimerHandle1;
 	FTimerHandle TimerHandle0;
 
-	void Count5() { UGameplayStatics::PlaySoundAtLocation(GetWorld(), CountDownSound5, FVector(0, 0, 0)); }
-	void Count4() { UGameplayStatics::PlaySoundAtLocation(GetWorld(), CountDownSound4, FVector(0, 0, 0)); }
-	void Count3() { UGameplayStatics::PlaySoundAtLocation(GetWorld(), CountDownSound3, FVector(0, 0, 0)); }
-	void Count2() { UGameplayStatics::PlaySoundAtLocation(GetWorld(), CountDownSound2, FVector(0, 0, 0)); }
-	void Count1() { UGameplayStatics::PlaySoundAtLocation(GetWorld(), CountDownSound1, FVector(0, 0, 0)); }
-	void Count0() { UGameplayStatics::PlaySoundAtLocation(GetWorld(), CountDownSound0, FVector(0, 0, 0)); }
+	void Count5();
+	void Count4();
+	void Count3();
+	void Count2();
+	void Count1();
+	void Count0();
 
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

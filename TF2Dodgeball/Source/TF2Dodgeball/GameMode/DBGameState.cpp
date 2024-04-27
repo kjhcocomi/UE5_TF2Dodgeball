@@ -9,12 +9,97 @@
 #include "System/DBGameInstance.h"
 #include "UI/DBChatWidget.h"
 #include "UI/DBChatTmpWidget.h"
+#include "UI/DBHudWidget.h"
 #include "Character/DBCharacter.h"
 #include "Player/DBPlayerController.h"
 
 void ADBGameState::SetCurrentGameState(EDBGameState GS)
 {
 	CurrentDBGameState = GS;
+}
+
+void ADBGameState::Count5()
+{
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), CountDownSound5, FVector(0, 0, 0));
+	UDBUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UDBUIManagerSubsystem>();
+	if (UIManager)
+	{
+		UDBHudWidget* HudUI = UIManager->GetHudUI();
+		if (HudUI)
+		{
+			HudUI->SetCountDownText(5);
+		}
+	}
+}
+
+void ADBGameState::Count4()
+{
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), CountDownSound4, FVector(0, 0, 0));
+	UDBUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UDBUIManagerSubsystem>();
+	if (UIManager)
+	{
+		UDBHudWidget* HudUI = UIManager->GetHudUI();
+		if (HudUI)
+		{
+			HudUI->SetCountDownText(4);
+		}
+	}
+}
+
+void ADBGameState::Count3()
+{
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), CountDownSound3, FVector(0, 0, 0));
+	UDBUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UDBUIManagerSubsystem>();
+	if (UIManager)
+	{
+		UDBHudWidget* HudUI = UIManager->GetHudUI();
+		if (HudUI)
+		{
+			HudUI->SetCountDownText(3);
+		}
+	}
+}
+
+void ADBGameState::Count2()
+{
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), CountDownSound2, FVector(0, 0, 0));
+	UDBUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UDBUIManagerSubsystem>();
+	if (UIManager)
+	{
+		UDBHudWidget* HudUI = UIManager->GetHudUI();
+		if (HudUI)
+		{
+			HudUI->SetCountDownText(2);
+		}
+	}
+}
+
+void ADBGameState::Count1()
+{
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), CountDownSound1, FVector(0, 0, 0));
+	UDBUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UDBUIManagerSubsystem>();
+	if (UIManager)
+	{
+		UDBHudWidget* HudUI = UIManager->GetHudUI();
+		if (HudUI)
+		{
+			HudUI->SetCountDownText(1);
+		}
+	}
+}
+
+void ADBGameState::Count0()
+{
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), CountDownSound0, FVector(0, 0, 0));
+	UDBUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UDBUIManagerSubsystem>();
+	if (UIManager)
+	{
+		UDBHudWidget* HudUI = UIManager->GetHudUI();
+		if (HudUI)
+		{
+			HudUI->SetCountDownText(0);
+		}
+	}
 }
 
 void ADBGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
